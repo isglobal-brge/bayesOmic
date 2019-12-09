@@ -1,0 +1,61 @@
+var O[Nvar,Ngroups],pi[Nvar,Ngroups],N[Nvar,Ngroups],alpha[Ngroups],lambda[Ngroups-1],u[Nvar],v[Nvar,Ngroups-1],tau.u,tau.v[Ngroups-1],tau.lambda,sigma.u,sigma.v[Ngroups-1],sigma.lambda;
+
+model {
+
+# model
+	for (i in 1:Nvar) {
+		for (j in 1:Ngroups) {
+			O[i,j] ~ dbin(pi[i,j], 2*N[i,j]);
+		}
+	}
+
+	for (i in 1:Nvar) {
+		logit(pi[i,1]) <- alpha[1] + u[i];
+		for (j in 1:(Ngroups-1)) {
+			logit(pi[i,j+1])  <- alpha[j+1] + lambda[j]*u[i] + v[i,j];
+		}
+	}
+
+# Prior intercept
+	for (j in 1:Ngroups) {
+		alpha[j] ~ dnorm(0, 0.001);
+	}
+
+# Prior shared component
+	for (i in 1:Nvar) {
+		u[i] ~ dnorm(0, tau.u);
+	}
+
+# Prior specific component
+	for (i in 1:Nvar) {
+		for (j in 1:(Ngroups-1)) {
+			v[i,j] ~ dt(0, tau.v[j], 4);
+		}
+	}
+
+# Prior coefficients shared component
+	for (j in 1:(Ngroups-1)) {
+		lambda[j] <- exp(loglambda[j]);
+		loglambda[j] ~ dnorm(0, tau.lambda);
+	}
+
+# Hyper-priors
+	tau.u <- pow(sigma.u,-2);
+	tau.lambda <- pow(sigma.lambda,-2);
+	sigma.u ~ dnorm(0,0.01)T(0,);
+	sigma.lambda ~ dnorm(0,0.01)T(0,);
+	for (j in 1:(Ngroups-1)) {
+		tau.v[j] <- pow(sigma.v[j],-2);
+		sigma.v[j] ~ dnorm(0,0.01)T(0,);
+	}
+
+# Some computations 
+	#Probability of having specific components > 0
+	for(i in 1:Nvar) { 
+		for(j in 1:(Ngroups-1)){
+		pp.v[i,j] <- step(v[i,j])
+		}
+	}
+
+}
+

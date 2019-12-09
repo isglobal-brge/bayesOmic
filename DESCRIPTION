@@ -1,0 +1,14 @@
+Package: bayesOmic
+Type: Package
+Title: Bayesian modeling for omic data analysis
+Version: 0.1.0
+Date: 2019-12-09
+Depends: R (>= 3.6.0), rjags, INLA
+Suggests: SNPassoc, RColorBrewer
+Author: Juan R González <juanr.gonzalez@isglobal.org> 
+Maintainer: Juan R Gonzalez <juanr.gonzalez@isglobal.org>
+Description: Bayesian shared component model to analyze SNP and CNV data in genetic studies
+License: MIT
+LazyLoad: yes
+URL: http://brge.isglobal.org
+Encoding: latin1

@@ -1,0 +1,60 @@
+var O[N.cnvs,N.groups],lambda[N.cnvs,N.groups],alpha[N.groups],beta[N.groups],u[N.cnvs],v[N.cnvs,N.groups],tau[N.groups], tau.u,tau.v[N.groups],sigma.v[N.groups],sigma[N.groups],predicted[N.cnvs,N.groups];
+
+model {
+
+#
+# Model
+#
+
+	for (i in 1:N.cnvs) {
+		for (j in 1:N.groups) {
+			O[i,j] ~ dnorm(N[i,j]*lambda[i,j],tau[j]/(N[i,j]));
+                        lambda[i,j] <- alpha[j] + beta[j]*u[i] + v[i,j];
+		}
+	}
+
+
+#
+# priori 
+#
+
+        for (j in 1:N.groups) {
+		tau[j] <- pow(sigma[j],-2);           # tau
+		sigma[j] ~ dnorm(0,0.01)T(0,);
+		alpha[j] ~ dnorm(0, 0.001);           # intercept for diseases
+		beta[j] ~ dnorm(0, 0.001);            # coefficient for shared component for diseases
+	}
+
+	for (i in 1:N.cnvs) {
+		u[i] ~ dnorm(0, tau.u);               # shared component for diseases
+	}
+
+	for (i in 1:N.cnvs) {
+		for (j in 1:N.groups) {
+			v[i,j] ~ dt(0, tau.v[j], 4);  # specific component for diseases
+		}
+	}
+
+
+	tau.u <- 1;                                   # hyper-parameters 
+	for (j in 1:N.groups) {
+		tau.v[j] <- pow(sigma.v[j],-2);
+		sigma.v[j] ~ dnorm(0,0.01)T(0,);
+	}
+	
+
+
+#
+# Some computations
+#
+
+	for(i in 1:N.cnvs) {                          
+             for (j in 1:N.groups) {
+                     p.v[i,j]<-step(v[i,j]);          # probability of being <> 0 
+                     predicted[i,j] ~ dnorm(N[i,j]*lambda[i,j],tau[j]/(N[i,j]));  # predicted values
+             }
+        }
+ 
+        
+}
+
