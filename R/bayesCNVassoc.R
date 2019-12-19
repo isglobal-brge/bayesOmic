@@ -1,5 +1,5 @@
 bayesCNVassoc <-
-function(y, cnvs, QC=0.9, method="JAGS", 
+function(cnvs, y, QC=0.9, method="JAGS", 
          n.iter.burn.in=10000, n.iter=30000, thin=50,
          n.chain=2, alpha.corrected, numint.maxfeval=10000, ...)
  {
