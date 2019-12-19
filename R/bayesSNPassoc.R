@@ -153,7 +153,7 @@ bayesSNPassoc <- function (y, snps, annotation, chr, QC = 0.9, min.freq=0.05, me
                 u = u, v = v, sigma.u = sigma.u, sigma.v = sigma.v,
                 sigma.lambda = sigma.lambda)
         }
-        ans <- jags.model(system.file("inst/JAGSmodels/model.bug", package = "bayesOmic"),
+        ans <- jags.model(system.file("extdata/JAGSmodels/model.bug", package = "bayesOmic"),
             data = data.JAGS, inits = initials.JAGS, n.chain = n.chain,
             ...)
         update(ans, n.iter.burn.in)

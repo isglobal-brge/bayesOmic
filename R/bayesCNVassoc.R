@@ -165,7 +165,7 @@ function(y, cnvs, QC=0.9, method="JAGS",
      }
 
 # Run JAGS
-   ans<-jags.model(system.file("inst/JAGSmodels/model2_noN.bug", package="bayesOmic"), 
+   ans<-jags.model(system.file("extdata/JAGSmodels/model2_noN.bug", package="bayesOmic"), 
                    data=data.JAGS, inits=initials.JAGS, n.chain=n.chain, ...)
    update(ans, n.iter.burn.in)
 
