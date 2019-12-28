@@ -1,3 +1,20 @@
+#' Bayesian model to analyze CNV data
+#' 
+#' @aliases bayesCNVassoc
+#' @aliases plot.bayesCNVassoc
+#' @aliases print.bayesCNVassoc
+#' @param cnvs cnvs
+#' @param y y
+#' @param QC  
+#' @param method method can be 'JAGS' or 'INLA'
+#' @param n.iter.burn.in  
+#' @param n.iter  
+#' @param thin  
+#' @param n.chain  
+#' @export
+
+
+
 bayesCNVassoc <-
 function(cnvs, y, QC=0.9, method="JAGS", 
          n.iter.burn.in=10000, n.iter=30000, thin=50,

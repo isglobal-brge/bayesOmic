@@ -1,3 +1,10 @@
+#' Creates a Heatmap using coefficients of Bayesian model
+#' 
+#' @aliases makeHeatmap
+#' @param x object of class 'bayesSNPassoc'
+#' @param quantiles 
+
+
 makeHeatmap <-
 function(x, quantiles=c(.2,.5,.6,.8), ...)
  {

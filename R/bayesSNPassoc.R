@@ -1,4 +1,23 @@
-bayesSNPassoc <- function (y, snps, annotation, chr, QC = 0.9, min.freq=0.05, method = "JAGS", n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,  
+#' Bayesian model to analyze SNP data
+#' 
+#' @aliases bayesSNPassoc
+#' @aliases plot.bayesSNPassoc
+#' @aliases print.bayesSNPassoc
+#' @param snps snps
+#' @param y 
+#' @param annotation 
+#' @param chr 
+#' @param QC 
+#' @param min.freq 
+#' @param method method can be 'JAGS' or 'INLA'
+#' @param n.iter.burn.in 
+#' @param n.iter 
+#' @param thin 
+#' @param n.chain 
+#' @export
+
+
+bayesSNPassoc <- function (snps, y, annotation, chr, QC = 0.9, min.freq=0.05, method = "JAGS", n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,  
     ...)
 {
     methods <- c("INLA", "JAGS")

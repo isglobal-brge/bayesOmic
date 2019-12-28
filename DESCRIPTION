@@ -11,4 +11,4 @@ Description: Bayesian shared component model to analyze SNP and CNV data in gene
 License: MIT
 LazyLoad: yes
 URL: http://brge.isglobal.org
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2

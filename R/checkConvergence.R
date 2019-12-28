@@ -1,3 +1,12 @@
+#' Function to check convergence of Bayesian model
+#' 
+#' @aliases checkConvergence
+#' @param x 
+#' @param type 
+#' @param parameter 
+
+
+
 checkConvergence <-
 function(x, type="Markov chain", parameter="alpha", ...)
  {
