@@ -4,6 +4,7 @@
 #' @aliases print.parameters
 #' @param x An object of class 'bayesSNPassoc' or 'bayesCNVassoc'
 #' @method print parameters
+#' @export
 
 
 

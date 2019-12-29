@@ -4,6 +4,7 @@
 #' @param x 
 #' @param type 
 #' @param parameter 
+#' @export
 
 
 

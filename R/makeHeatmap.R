@@ -3,6 +3,7 @@
 #' @aliases makeHeatmap
 #' @param x object of class 'bayesSNPassoc'
 #' @param quantiles 
+#' @export
 
 
 makeHeatmap <-
