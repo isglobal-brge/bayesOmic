@@ -1,3 +1,12 @@
+#' getInfoBayesSNPassoc
+#' 
+#' @param x 
+#' @param Ngroups 
+#' @param Nvar 
+#' @param names.groups 
+#' @param names.SNPs 
+#' @keywords internal
+
 getInfoBayesSNPassoc <-
 function(x, Ngroups, Nvar, names.groups, names.SNPs)
  {

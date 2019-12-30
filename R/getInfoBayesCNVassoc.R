@@ -1,3 +1,14 @@
+#' getInfoBayesCNVassoc
+#' 
+#' @param x 
+#' @param N.groups 
+#' @param N.cnvs 
+#' @param names.groups 
+#' @param names.CNVs 
+#' @param quantiles 
+#' @keywords internal
+
+
 getInfoBayesCNVassoc<-function(x, N.groups, N.cnvs, names.groups, names.CNVs, quantiles)
  {
 

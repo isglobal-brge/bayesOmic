@@ -1,12 +1,10 @@
 #' Bayesian model to analyze CNV data
 #' 
-#' @aliases bayesCNVassoc
-#' @aliases plot.bayesCNVassoc
-#' @aliases print.bayesCNVassoc
-#' @param cnvs cnvs
-#' @param y y
+#' @aliases bayesCNVassoc plot.bayesCNVassoc print.bayesCNVassoc
+#' @param cnvs matrix with the values for each CNV (columns) corresponding to each individual (rows)
+#' @param y vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)
 #' @param QC  
-#' @param method method can be 'JAGS' or 'INLA'
+#' @param method can be 'JAGS' or 'INLA'
 #' @param n.iter.burn.in  
 #' @param n.iter  
 #' @param thin  

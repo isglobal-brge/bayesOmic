@@ -21,13 +21,13 @@ bayesCNVassoc(
 )
 }
 \arguments{
-\item{cnvs}{cnvs}
+\item{cnvs}{matrix with the values for each CNV (columns) corresponding to each individual (rows)}
 
-\item{y}{y}
+\item{y}{vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)}
 
 \item{QC}{}
 
-\item{method}{method can be 'JAGS' or 'INLA'}
+\item{method}{can be 'JAGS' or 'INLA'}
 
 \item{n.iter.burn.in}{}
 

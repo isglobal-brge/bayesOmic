@@ -1,9 +1,9 @@
 #' Function to check convergence of Bayesian model
 #' 
 #' @aliases checkConvergence
-#' @param x 
-#' @param type 
-#' @param parameter 
+#' @param x object of class bayesSNPassoc or bayesCNVassoc
+#' @param type 'Markov chain' or 'Gelman-Rubin'
+#' @param parameter 'alpha', 'log-lambda', 'shared' or 'specific'
 #' @export
 
 

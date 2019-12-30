@@ -1,3 +1,10 @@
+#' plot.bayesSNPassoc
+#' 
+#' @param x object of class 'bayesSNPassoc'
+#' @param type 
+#' @param mfrow 
+#' @keywords internal
+
 plot.bayesSNPassoc <-
 function(x, type="specific", mfrow, ...)
  {

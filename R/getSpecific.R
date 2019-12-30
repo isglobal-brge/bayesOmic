@@ -1,3 +1,8 @@
+#' getSpecific
+#' 
+#' @param x 
+#' @keywords internal
+
 getSpecific <- function(x){
   ss <- x$res.summary
   rownames(ss) <- rep(x$names.CNVs, 3)

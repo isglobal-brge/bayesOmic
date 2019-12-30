@@ -1,3 +1,8 @@
+#' print.parameters
+#' 
+#' @param x 
+#' @keywords internal
+
 print.parameters <-
 function(x, ...)
  {

@@ -22,9 +22,9 @@ bayesSNPassoc(
 )
 }
 \arguments{
-\item{snps}{snps}
+\item{snps}{matrix with the phenotype for each SNP (columns) corresponding to each individual (rows)}
 
-\item{y}{}
+\item{y}{vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)}
 
 \item{annotation}{}
 

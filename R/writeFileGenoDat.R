@@ -1,3 +1,10 @@
+#' writeFileGenoDat
+#' 
+#' @param gg 
+#' @param allesum 
+#' @param caco  
+#' @keywords internal
+
 
 writeFileGenoDat<-function(gg, allesum=FALSE, caco)
 {

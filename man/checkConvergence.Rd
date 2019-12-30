@@ -7,11 +7,11 @@
 checkConvergence(x, type = "Markov chain", parameter = "alpha", ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{object of class bayesSNPassoc or bayesCNVassoc}
 
-\item{type}{}
+\item{type}{'Markov chain' or 'Gelman-Rubin'}
 
-\item{parameter}{}
+\item{parameter}{'alpha', 'log-lambda', 'shared' or 'specific'}
 }
 \description{
 Function to check convergence of Bayesian model

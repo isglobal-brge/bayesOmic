@@ -1,3 +1,10 @@
+#' plot.bayesCNVassoc
+#' 
+#' @param x object of class 'bayesCNVassoc'
+#' @param mfrow 
+#' @param pos.legend position of the plot legend
+#' @keywords internal
+
 plot.bayesCNVassoc <- function (x, mfrow, pos.legend = "bottomright", ...)
 {
     if (!inherits(x, "bayesCNVassoc"))

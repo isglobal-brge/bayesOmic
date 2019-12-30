@@ -1,3 +1,10 @@
+#' datChr
+#' 
+#' @param x 
+#' @param geno 
+#' @param annotation 
+#' @keywords internal
+
 datChr<-function(x, geno, annotation)
 {
   o <- annotation[,1]==x 

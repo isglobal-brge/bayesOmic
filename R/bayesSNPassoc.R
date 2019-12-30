@@ -3,8 +3,8 @@
 #' @aliases bayesSNPassoc
 #' @aliases plot.bayesSNPassoc
 #' @aliases print.bayesSNPassoc
-#' @param snps snps
-#' @param y 
+#' @param snps matrix with the phenotype for each SNP (columns) corresponding to each individual (rows)
+#' @param y vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)
 #' @param annotation 
 #' @param chr 
 #' @param QC 

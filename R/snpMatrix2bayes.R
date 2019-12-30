@@ -1,3 +1,8 @@
+#' snpMatrix2bayes
+#' 
+#' @param x 
+#' @keywords internal
+
 snpMatrix2bayes <-
 function(x)
  {

@@ -1,12 +1,9 @@
 #' Get Parameters for a Bayesian model (SNP or CNV)
 #' 
-#' @aliases getParameters
-#' @aliases print.parameters
+#' @aliases getParameters print.parameters
 #' @param x An object of class 'bayesSNPassoc' or 'bayesCNVassoc'
 #' @method print parameters
 #' @export
-
-
 
 
 getParameters <- function(x)
