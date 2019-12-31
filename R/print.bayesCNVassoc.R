@@ -2,7 +2,7 @@
 #' 
 #' @param x object of class 'bayesCNVassoc'
 #' @param sig.CNVs 
-#' @keywords internal
+
 
 print.bayesCNVassoc<-function(x, sig.CNVs=c(0.05,0.95), ...)
  {

@@ -6,10 +6,7 @@
 #' @param parameter 'alpha', 'log-lambda', 'shared' or 'specific'
 #' @export
 
-
-
-checkConvergence <-
-function(x, type="Markov chain", parameter="alpha", ...)
+checkConvergence <- function(x, type="Markov chain", parameter="alpha", ...)
  {
   if (!class(x)%in%c("bayesSNPassoc", "bayesCNVassoc")) 
      stop("object must be of class 'bayesSNPassoc'")

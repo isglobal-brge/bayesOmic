@@ -4,7 +4,8 @@
 \alias{getInfoBayesCNVassoc}
 \title{getInfoBayesCNVassoc}
 \usage{
-getInfoBayesCNVassoc(x, N.groups, N.cnvs, names.groups, names.CNVs, quantiles)
+getInfoBayesCNVassoc(x, N.groups, N.cnvs, names.groups, names.CNVs,
+  quantiles)
 }
 \arguments{
 \item{x}{}

@@ -14,4 +14,3 @@
 \description{
 print.bayesCNVassoc
 }
-\keyword{internal}

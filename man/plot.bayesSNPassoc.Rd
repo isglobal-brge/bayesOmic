@@ -16,4 +16,3 @@ plot.bayesSNPassoc(x, type = "specific", mfrow, ...)
 \description{
 plot.bayesSNPassoc
 }
-\keyword{internal}

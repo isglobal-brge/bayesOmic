@@ -2,35 +2,22 @@
 % Please edit documentation in R/bayesSNPassoc.R
 \name{bayesSNPassoc}
 \alias{bayesSNPassoc}
-\alias{plot.bayesSNPassoc}
-\alias{print.bayesSNPassoc}
 \title{Bayesian model to analyze SNP data}
 \usage{
-bayesSNPassoc(
-  snps,
-  y,
-  annotation,
-  chr,
-  QC = 0.9,
-  min.freq = 0.05,
-  method = "JAGS",
-  n.iter.burn.in = 10000,
-  n.iter = 30000,
-  thin = 50,
-  n.chain = 2,
-  ...
-)
+bayesSNPassoc(snps, y, annotation, chr, call.rate = 0.9,
+  min.freq = 0.05, method = "JAGS", n.iter.burn.in = 10000,
+  n.iter = 30000, thin = 50, n.chain = 2, ...)
 }
 \arguments{
-\item{snps}{matrix with the phenotype for each SNP (columns) corresponding to each individual (rows)}
+\item{snps}{matrix with the genotype of each SNP (columns) corresponding to each individual (rows)}
 
-\item{y}{vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)}
+\item{y}{vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...)}
 
 \item{annotation}{}
 
 \item{chr}{}
 
-\item{QC}{}
+\item{call.rate}{}
 
 \item{min.freq}{}
 

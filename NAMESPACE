@@ -5,3 +5,10 @@ export(bayesSNPassoc)
 export(checkConvergence)
 export(getParameters)
 export(makeHeatmap)
+
+S3method(plot, bayesCNVassoc)
+S3method(plot, bayesSNPassoc)
+S3method(print, bayesCNVassoc)
+S3method(print, parameters)
+
+

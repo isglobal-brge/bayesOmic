@@ -3,11 +3,11 @@
 #' @aliases bayesSNPassoc
 #' @aliases plot.bayesSNPassoc
 #' @aliases print.bayesSNPassoc
-#' @param snps matrix with the phenotype for each SNP (columns) corresponding to each individual (rows)
-#' @param y vector with one value per individual, stores information about group belonging (Case/Control, PopA/PopB/PopC...)
+#' @param snps matrix with the genotype of each SNP (columns) corresponding to each individual (rows)
+#' @param y vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...)
 #' @param annotation 
 #' @param chr 
-#' @param QC 
+#' @param call.rate 
 #' @param min.freq 
 #' @param method method can be 'JAGS' or 'INLA'
 #' @param n.iter.burn.in 
@@ -17,7 +17,8 @@
 #' @export
 
 
-bayesSNPassoc <- function (snps, y, annotation, chr, QC = 0.9, min.freq=0.05, method = "JAGS", n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,  
+bayesSNPassoc <- function (snps, y, annotation, chr, 
+                           call.rate = 0.9, min.freq=0.05, method = "JAGS", n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,  
     ...)
 {
     methods <- c("INLA", "JAGS")
@@ -51,7 +52,7 @@ bayesSNPassoc <- function (snps, y, annotation, chr, QC = 0.9, min.freq=0.05, me
         N <- alleleAgg[[3]]
         O <- alleleAgg[[2]]
         nn <- apply(N, 1, sum)
-        selec1 <- (nn/Nindiv) >= QC
+        selec1 <- (nn/Nindiv) >= call.rate
         selec2 <- apply(O/N, 1, max) > min.freq
         N <- N[selec1 & selec2, ]
         O <- O[selec1 & selec2, ]
@@ -95,7 +96,7 @@ bayesSNPassoc <- function (snps, y, annotation, chr, QC = 0.9, min.freq=0.05, me
         N <- parameter.n
         O <- data.agg.num
         nn <- apply(N, 1, sum)
-        selec1 <- (nn/Nindiv) >= QC
+        selec1 <- (nn/Nindiv) >= call.rate
         selec2 <- apply(O/N, 1, max) > min.freq
         N <- N[selec1 & selec2, ]
         O <- O[selec1 & selec2, ]

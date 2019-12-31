@@ -16,4 +16,3 @@ plot.bayesCNVassoc(x, mfrow, pos.legend = "bottomright", ...)
 \description{
 plot.bayesCNVassoc
 }
-\keyword{internal}

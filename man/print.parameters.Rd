@@ -12,4 +12,3 @@
 \description{
 print.parameters
 }
-\keyword{internal}

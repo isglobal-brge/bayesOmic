@@ -6,19 +6,9 @@
 \alias{print.bayesCNVassoc}
 \title{Bayesian model to analyze CNV data}
 \usage{
-bayesCNVassoc(
-  cnvs,
-  y,
-  QC = 0.9,
-  method = "JAGS",
-  n.iter.burn.in = 10000,
-  n.iter = 30000,
-  thin = 50,
-  n.chain = 2,
-  alpha.corrected,
-  numint.maxfeval = 10000,
-  ...
-)
+bayesCNVassoc(cnvs, y, QC = 0.9, method = "JAGS",
+  n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,
+  alpha.corrected, numint.maxfeval = 10000, ...)
 }
 \arguments{
 \item{cnvs}{matrix with the values for each CNV (columns) corresponding to each individual (rows)}
