@@ -5,7 +5,7 @@
 \alias{print.parameters}
 \title{Get Parameters for a Bayesian model (SNP or CNV)}
 \usage{
-\method{print}{parameters}(x)
+getParameters(x)
 }
 \arguments{
 \item{x}{An object of class 'bayesSNPassoc' or 'bayesCNVassoc'}
