@@ -1,19 +1,20 @@
-#' getSpecific
+#' Get specific components 
 #' 
-#' @param x 
-#' @keywords internal
+#' @param x
+#' @param group 
+#' 
+#' 
+#' @export
 
-getSpecific <- function(x){
-  ss <- x$res.summary
-  rownames(ss) <- rep(x$names.CNVs, 3)
-  sig <- apply(x$res.summary,1, function(x) x[1]<0 & x[3]<0 | x[1]>0 & x[3]>0)
-  n <- x$N.cnvs
-  out <- list()
-  for (i in 1:x$N.groups) {
-    sel <- (n*(i-1) + 1):(n*i)
-    out[[i]] <- ss[sel,][sig[sel],]  
+getSpecific <- function(x, group){
+  if (!group%in%x$names.group)
+    stop("select a correct group name")
+  ss <- x$res.summary$lambda[[group]]
+  ans <- ss[ss[,"sig"]!=0,]
+  if (nrow(ans)==0){
+    cat("No shared components are significant. \n")
+    ans <- NULL
   }
-  names(out) <- x$names.groups
-  out
+  ans
 }
   

@@ -2,17 +2,15 @@
 % Please edit documentation in R/checkConvergence.R
 \name{checkConvergence}
 \alias{checkConvergence}
-\title{Function to check convergence of Bayesian model}
+\title{Check model convergence of coefficients from the Bayesian model}
 \usage{
-checkConvergence(x, type = "Markov chain", parameter = "alpha", ...)
+checkConvergence(x, type = "Markov chain", parameter = "alpha")
 }
 \arguments{
-\item{x}{object of class bayesSNPassoc or bayesCNVassoc}
+\item{x}{object of class 'bayesOmic'}
 
-\item{type}{'Markov chain' or 'Gelman-Rubin'}
-
-\item{parameter}{'alpha', 'log-lambda', 'shared' or 'specific'}
+\item{parameter}{}
 }
 \description{
-Function to check convergence of Bayesian model
+Check model convergence of coefficients from the Bayesian model
 }

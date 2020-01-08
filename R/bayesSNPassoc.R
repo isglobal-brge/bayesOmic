@@ -1,193 +1,124 @@
 #' Bayesian model to analyze SNP data
 #' 
 #' @aliases bayesSNPassoc
-#' @aliases plot.bayesSNPassoc
-#' @aliases print.bayesSNPassoc
-#' @param snps matrix with the genotype of each SNP (columns) corresponding to each individual (rows)
-#' @param y vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...)
+#' @aliases plot.bayesOmic
+#' @aliases print.bayesOmic
+#' @param group vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...)
+#' @param data matrix with the genotype of each SNP (columns) corresponding to each individual (rows)
+#' @param sep.allele how alleles are separeted. Argument to be passed through SNPassoc::setupSNP() when SNP data is in a matrix or data.frame. Default is "".
 #' @param annotation 
 #' @param chr 
 #' @param call.rate 
 #' @param min.freq 
-#' @param method method can be 'JAGS' or 'INLA'
+#' @param sig.level significance level
 #' @param n.iter.burn.in 
 #' @param n.iter 
 #' @param thin 
 #' @param n.chain 
+#' @param other arguments to be passed trough SNPassoc::setupSNP
 #' @export
 
 
-bayesSNPassoc <- function (snps, y, annotation, chr, 
-                           call.rate = 0.9, min.freq=0.05, method = "JAGS", n.iter.burn.in = 10000, n.iter = 30000, thin = 50, n.chain = 2,  
-    ...)
+bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rate = 0.9, min.freq=0.05, 
+                           sig.level = 0.05, n.iter.burn.in = 1000, n.iter = 5000, thin = 10, n.chain = 2,
+                            ...)
 {
-    methods <- c("INLA", "JAGS")
-    type <- pmatch(toupper(method), methods)
-    if (is.na(type))
-        stop("Method should be 'INLA' or 'JAGS'")
-    Y <- y
+
+    Y <- group
     if (!is.factor(Y))
         stop("response must be a factor variable")
     if (any(is.na(Y)))
         stop("Dependent variable has missing information")
-    if (inherits(snps, "snp.matrix")) {
-        Nindiv <- length(Y)
-        names.groups <- levels(Y)
-        Ngroups <- length(names.groups)
-
-        if (!missing(chr))
-          {
-           if (missing(annotation))
-            stop("snp.matrix data requires annotation information")
-           else
-            genosel <- datChr(chr, snps, annotation)
-          }
+    
+    Nindiv <- length(Y)
+    names.groups <- levels(Y)
+    Ngroups <- length(names.groups)
+    
+    
+    #
+    # Get aggregated data
+    #
+    
+    if (inherits(data, "snp.matrix")) {
+      if (!missing(chr))
+        {
+        if (missing(annotation))
+          stop("snp.matrix data requires annotation information")
         else
-          {
-            genosel <- snps
-          }
+          genosel <- datChr(chr, data, annotation)
+        }
+        else {
+          genosel <- data
+        }
 
-        alleleAgg <- writeFileGenoDat(genosel, allesum = TRUE,
-            Y)
+        alleleAgg <- writeFileGenoDat(genosel, allesum = TRUE, Y)
         N <- alleleAgg[[3]]
         O <- alleleAgg[[2]]
-        nn <- apply(N, 1, sum)
-        selec1 <- (nn/Nindiv) >= call.rate
-        selec2 <- apply(O/N, 1, max) > min.freq
-        N <- N[selec1 & selec2, ]
-        O <- O[selec1 & selec2, ]
-        Nvar <- nrow(N)
-        names.SNPs <- colnames(genosel)
-        names.SNPs <- names.SNPs[selec1 & selec2]
     }
-    else {
-        o <- is.na(Y)
-        if (any(o)) {
-            cat("removing individuals with no information in grouping variable ...")
-            cat("done \n")
-            if (!is.numeric(snps[, 1]))
-                X <- data.frame(lapply(snps[!o, ], function(x) as.numeric(x) -
-                  1))
-            else X <- snps[!o, ]
-            Y <- Y[!o]
- }
-        else {
-            if (!is.numeric(snps[, 1]))
-                X <- data.frame(lapply(snps, function(x) as.numeric(x) -
-                  1))
-            else X <- snps
-        }
-        names.groups <- levels(Y)
-        Ngroups <- length(names.groups)
-        names.SNPs <- dimnames(X)[[2]]
-        Nindiv <- length(Y)
-        Nvar <- ncol(X)
-        data.agg <- t(aggregate(X, by = list(Y), sum, na.rm = TRUE))
-        data.agg.num <- matrix(as.numeric(data.agg[-1, ]), Nvar,
-            Ngroups)
-        parameter.n <- t(aggregate(is.na(X) == 0, by = list(Y),
-            sum))
-        parameter.n <- matrix(as.numeric(parameter.n[-1, ]),
-            Nvar, Ngroups)
-        colnames(data.agg.num) <- names.groups
-        colnames(parameter.n) <- names.groups
-        rownames(data.agg.num) <- rownames(data.agg)[-1]
-        rownames(parameter.n) <- rownames(data.agg)[-1]
-        N <- parameter.n
-        O <- data.agg.num
-        nn <- apply(N, 1, sum)
-        selec1 <- (nn/Nindiv) >= call.rate
-        selec2 <- apply(O/N, 1, max) > min.freq
-        N <- N[selec1 & selec2, ]
-        O <- O[selec1 & selec2, ]
-        Nvar <- nrow(N)
-        names.SNPs <- names.SNPs[selec1 & selec2]
-    }
-    data.JAGS <- list(Ngroups = Ngroups, Nvar = Nvar, O = O,
-        N = N)
-    if (type == 1) {
-
-        Nvar <- nrow(O) 
-        Ngroups <- ncol(O)
-        nd <- Nvar * Ngroups
-        y.obs <- as.vector(O)
-        two.n <- 2 * as.vector(N)
-        a <- 1:Nvar
-        b <- rep(NA, Nvar)
-
-        # general way of writting j1, j2, ..., jNgroups 
-        matrixJ <- NULL
-        for (i in 1:Ngroups)
-         {
-          k <- i-1
-          jAux <-  c(rep(b, k), a, rep(b, Ngroups - k - 1))
-          matrixJ <- cbind(matrixJ, jAux)
-         }
-        colnames(matrixJ) <- paste("j", 1:Ngroups, sep="")
-        
-        matrixLambda <- matrixJ[,-1,drop=FALSE]
-
-        lambdas <- paste("lambda", 1:(Ngroups-1), sep="")
-        colnames(matrixLambda) <- lambdas
-
-        alpha <- as.factor(rep(1:Ngroups, each = Nvar))
-        data <- data.frame(y = y.obs, matrixJ, matrixLambda, alpha = alpha, two.n = two.n)
-
     
-    # general way of writing formula (for any number of groups)
-
-        
-
-     ff.ini <- "y ~ alpha -1 + f(j1, model='iid', constr=TRUE, initial=-1, hyper='logtnormal')"
-
-     ff.j <- paste("f(j", 2:Ngroups, " ,copy='j1', fixed=FALSE)", sep="" ,collapse=" + ")
-
-     ff.lambda <- paste("f(lambda", 1:(Ngroups-1), " ,model='iid', hyper='logtnormal')", sep="" ,collapse=" + ")
-
-
-     formula.inla <- formula(paste(ff.ini, ff.j, ff.lambda, sep=" + "))
-
-  
-     res <- inla(formula.inla, family = "binomial", data = data,
-                      Ntrials = two.n, verbose = TRUE,
-                      control.inla = list(strategy = "gaussian", huge = FALSE),
-                       ...)
- 
-      out <- list(res = res, model = formula,
-            Ngroups = Ngroups, Nvar = Nvar, names.groups = names.groups,
-            names.SNPs = names.SNPs)
-
+    else if (is(data, "matrix") | is(data, "data.frame")){
+      genosel <- SNPassoc::setupSNP(data, 1:ncol(data), sep=sep.allele)
+      genosel <- mutate_all(genosel, SNPassoc::additive)
+     
+      O <- t(aggregate(genosel, by=list(Y), sum, na.rm=TRUE)[,-1])
+      N <- t(aggregate(is.na(genosel) == 0, by = list(Y), sum)[,-1])
     }
-    if (type == 2) {
-        initials.JAGS <- list()
-        for (i in 1:n.chain) {
-            alpha <- rnorm(Ngroups, 0, 1)
-            loglambda <- rnorm(Ngroups - 1, 0, 1)
-            u <- rnorm(Nvar, 0, 1)
-            v <- matrix(rnorm(Nvar * (Ngroups - 1), 0, 1), Nvar,
-                Ngroups - 1)
-            sigma.v <- abs(rnorm(Ngroups - 1, 0, 1))
-            sigma.lambda <- abs(rnorm(1))
-            sigma.u <- abs(rnorm(1))
-            initials.JAGS[[i]] <- list(alpha = alpha, loglambda = loglambda,
+    
+    
+    #
+    # Performs QC
+    #
+    
+
+    nn <- apply(N, 1, sum)
+    selec1 <- (nn/Nindiv) >= call.rate
+    selec2 <- apply(O/N, 1, max) > min.freq
+    N <- N[selec1 & selec2, ]
+    O <- O[selec1 & selec2, ]
+    Nvar <- nrow(N)
+    names.SNPs <- rownames(N)
+    N.features <- nrow(N)
+    
+    
+    
+    data.JAGS <- list(Ngroups = Ngroups, Nvar = Nvar, O = O, N = N)
+    
+    initials.JAGS <- list()
+    
+    for (i in 1:n.chain) {
+      alpha <- rnorm(Ngroups, 0, 1)
+      logbeta <- rnorm(Ngroups - 1, 0, 1)
+      u <- rnorm(Nvar, 0, 1)
+      v <- matrix(rnorm(Nvar * (Ngroups - 1), 0, 1), Nvar, Ngroups - 1)
+      sigma.v <- abs(rnorm(Ngroups - 1, 0, 1))
+      sigma.beta <- abs(rnorm(1))
+      sigma.u <- abs(rnorm(1))
+      initials.JAGS[[i]] <- list(alpha = alpha, logbeta = logbeta,
                 u = u, v = v, sigma.u = sigma.u, sigma.v = sigma.v,
-                sigma.lambda = sigma.lambda)
-        }
-        ans <- jags.model(system.file("extdata/JAGSmodels/model.bug", package = "bayesOmic"),
+                sigma.beta = sigma.beta)
+      }
+      
+    ans <- jags.model(system.file("extdata/JAGSmodels/model_SNPs_controls.bug", package = "bayesOmic"),
             data = data.JAGS, inits = initials.JAGS, n.chain = n.chain,
             ...)
-        update(ans, n.iter.burn.in)
-        res <- coda.samples(ans, variable.names = c("alpha",
-            "loglambda", "u", "v", "pp.v", "pi"), n.iter = n.iter,
-            thin = thin)
-        res.summary <- getInfoBayesSNPassoc(res, Ngroups, Nvar,
-            names.groups, names.SNPs)
-        out <- list(res = res, res.summary = res.summary, model = ans,
-            Ngroups = Ngroups, Nvar = Nvar, names.groups = names.groups,
-            names.SNPs = names.SNPs)
-    }
+    
+    update(ans, n.iter.burn.in)
+    
+    res <- coda.samples(ans, variable.names = c("alpha", "beta", "u", "v", "pp.v", "pi"), 
+                        n.iter = n.iter, thin = thin)
+    
+    alpha.corrected <- (sig.level/2)/N.features
+    qq <- c(alpha.corrected, 0.25, 0.5, 0.75, 1-alpha.corrected)
+    
+    res.summary <- getInfoBayesSNPassoc(res, Ngroups, Nvar, names.groups, names.SNPs, qq)
+    
+    out <- list(res = res, res.summary = res.summary, model = ans,
+            N.groups = Ngroups, N.features = Nvar, names.groups = names.groups,
+            names.features = names.SNPs)
+    
+
     attr(out, "control.group") <- TRUE
-    class(out) <- "bayesSNPassoc"
+    class(out) <- "bayesOmic"
     out
 }
 

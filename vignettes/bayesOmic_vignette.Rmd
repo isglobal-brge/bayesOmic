@@ -71,7 +71,7 @@ The package requires to have the case-control status and the SNPs in to
 different objects:
 
 ```{r get model}
-group <- sim.data$caco
+y <- sim.data$caco
 SNPs <- sim.data[, -1]
 ```
 
@@ -82,19 +82,14 @@ It is worth to notice that GWAS data is normally in PLINK format. The Genomic Da
 
 The model can be fitted by using the function `bayesSNPassoc` as follows:
 
-```{r run_SNP_model, eval=FALSE}
-mod <- bayesSNPassoc(y=group, snps=SNPs)
+```{r run_SNP_model}
+mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="")
 ```
 
-This process takes about 5 minutes. To avoid waiting, we have saved the
-object mod that can be loaded as:
 
-```{r load_mod}
-data(mod)
-```
-
-The function `bayesSNPassoc` prepares the data and then calls rjags to
-estimate model parameters. We have set up the following default arguments
+The function `bayesSNPassoc` prepares the data (NOTE: it aggregates the number of rare alleles by the grouping variable. When SNP data is a data.frame it uses
+`SNPassoc` package to get the number of rare alleles. In that case  the `sep.allele` argument defines how alleles are separated - `sep.allele=""` is the default value). 
+Then the function calls `rjags` to estimate model parameters. We have set up the following default arguments
 to be passed through rjags functions:
 
 ```{r}
@@ -119,22 +114,21 @@ checkConvergence(mod)
 Other model parameters (Figure \ref{fig:checkConvergence2) are summaryzed by changing the argument called `parameter`.
 
 ```{r checkConvergence2, fig.cap="Chains convergence of `alpha` parameter for SNP model of 'sim.data'."}
-checkConvergence(mod, parameter = "log-lambda")
+checkConvergence(mod, parameter = "beta")
 ```
 
-Gelman-Rubin plot for `alpha` parameter can be obtained by typing
+The trace plot can be obtained by 
 
 ```{r checkConvergenceGR, fig.cap="Chains convergence of `alpha` parameter for SNP model of 'sim.data' using Gelman-Rubin method."}
-checkConvergence(mod, type = "Gelman-Rubin")
+checkConvergence(mod, type = "trace")
 ```
 
 ## Results
 
-Model parameters (intercept and shared component) can be obtained by
-typing:
+Model parameters (intercept and shared component) can be obtained by using print function:
 
 ```{r showParam}
-getParameters(mod)
+mod
 ```
 
 On the other hand, specific and shared components can be visualize by:
@@ -151,61 +145,60 @@ plot(mod, type = "shared")
 
 respectively.
 
-Finally, a hierarchical clustering can be performed by using the predicted
-probabilities by typing:
+Finally, a hierarchical clustering can be performed by using the predicted probabilities by typing:
 
 ```{r}
-library(RColorBrewer)
 makeHeatmap(mod)
 ```
 
-The figure shows a Heatmap were we can observe that groups M1 and M3 are
-different from cases and group M1. 
+The figure shows a Heatmap were we can observe that groups M1 and M3 are different from controls and group M2. 
 
-##  Model Validation
-DIC (Deviance Information Criteria) is one of the most used criteria to evaluate the goodness-of-fit for a given model. We use the function `dic.samples()` from rjags package to get such information. This deviance can be computed using two types of penalization depending on the argument type. The classic penalization proposed by @spiegelhalter2002bayesian can be obtained by setting `type="pD"`, while the penalization proposed by @plummer2008penalized can be obtained with `type="popt"`.
 
-```{r dic, eval=FALSE}
-dic.samples(mod$model, n.iter = 2000, type = "pD")
-```
 
 # Analysis of CNV data
 
-We provide a simulated example that can be loaded by typing:
+We provide a real data example that can be loaded by typing:
 
 ```{r}
 data(armengol)
 ```
 
-Multiple comparisons problem is address by computing confidence credible
-intervals at more stringent level alpha.corrected
+Model parameter estimates are obtained using the function `bayesOmicAssoc` by executing:
 
-```{r}
-nCNVs <- ncol(armengol) - 1
-alpha.corrected <- (0.05/nCNVs)/2
+```{r model_CNV}
+mod.CNV <- bayesOmicAssoc(group="pop", data=armengol)
 ```
 
-Model parameter estimates are obtained using the function `bayesCNVassoc`
-by executing:
 
-```{r model_CNV, eval=FALSE}
-mod.CNV <- bayesCNVassoc(armengol[, -1], armengol[, 1], method="JAGS",
-                         alpha=c(alpha.corrected, alpha.corrected), 
-                         n.iter.burn.in = 20000, n.iter = 200000)
+The intercept ans coefficient of shared components of populations can be obtained by:
+
+```{r int_shared}
+mod.CNV
 ```
 
-This process is very time cosuming. We use INLA implementation instead
 
-```{r model_CNV_inla}
-mod.CNV <- bayesCNVassoc(armengol[, -1], armengol[, 1], method="inla",
-                         alpha=c(alpha.corrected, alpha.corrected))
+We can check model convergence by
+
+```{r check_model_CNV}
+checkConvergence(mod.CNV)
 ```
 
-Specific components for each population can be obtained by typing:
+
+```{r check_model_CNV_2}
+checkConvergence(mod.CNV, type="trace")
+```
+
+The Specific components for each population can be obtained by typing:
 
 
 ```{r specificCNV}
-plot(mod.CNV)
+makeHeatmap(mod.CNV, quantiles=c(.025, 0.2, 0.5, 0.8, 0.975))
+```
+
+We can obtain the name of the specific features of a given population by
+
+```{r specificCNV_name}
+getSpecific(mod.CNV, group="YRI")
 ```
 
 # 5 Acknowledgments

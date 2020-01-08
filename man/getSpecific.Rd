@@ -2,14 +2,13 @@
 % Please edit documentation in R/getSpecific.R
 \name{getSpecific}
 \alias{getSpecific}
-\title{getSpecific}
+\title{Get specific components}
 \usage{
-getSpecific(x)
+getSpecific(x, group)
 }
 \arguments{
-\item{x}{}
+\item{group}{}
 }
 \description{
-getSpecific
+Get specific components
 }
-\keyword{internal}

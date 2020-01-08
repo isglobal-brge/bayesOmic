@@ -1,84 +1,50 @@
-#' Function to check convergence of Bayesian model
+#' Check model convergence of coefficients from the Bayesian model
 #' 
 #' @aliases checkConvergence
-#' @param x object of class bayesSNPassoc or bayesCNVassoc
-#' @param type 'Markov chain' or 'Gelman-Rubin'
-#' @param parameter 'alpha', 'log-lambda', 'shared' or 'specific'
+#' @param x object of class 'bayesOmic'
+#' @param parameter 
+#' @param type
+#' 
 #' @export
 
-checkConvergence <- function(x, type="Markov chain", parameter="alpha", ...)
+checkConvergence <- function(x, parameter="alpha", type="density")
  {
-  if (!class(x)%in%c("bayesSNPassoc", "bayesCNVassoc")) 
-     stop("object must be of class 'bayesSNPassoc'")
+  if (!inherits(x, "bayesOmic")) 
+     stop("object must be of class 'bayesOmic'")
 
-  type.plot<-charmatch(type, c("Markov chain", "Gelman-Rubin"))
-
+  type.plot <- charmatch(type, c("density", "traceplot", "running_mean"))
   if (is.na(type.plot))
-   stop("'type' argument must be 'Markov chain' or 'Gelman-Rubin'")
+    stop("'type' argument must be density, traceplot or running_mean")
 
-
-  param<-charmatch(parameter, c("alpha", "log-lambda", "shared", "specific"))
+  fun <- ifelse(type.plot==1, ggmcmc::ggs_density, 
+                ifelse(type.plot==2, ggmcmc::ggs_traceplot, ggmcmc::ggs_running))
+  
+  param<-charmatch(parameter, c("alpha", "beta", "shared", "specific"))
  
   if (is.na(param))
-   stop("'parameter' argument must be 'alpha', 'log-lambda', 'shared' or 'specific'")
+   stop("'parameter' argument must be 'alpha', 'beta', 'shared' or 'specific'")
 
   nn<-colnames(x$res[[1]])
 
-  if (type.plot==1)
-   {
-    if (param==1)
-     {
-      o<-grep("alpha", nn)
-      plot(x$res[,o])
-     }
-
-    if (param==2)
-     {
-      o<-grep("loglambda", nn)
-      plot(x$res[,o])
-     }
-
-    if (param==3)
-     {
-      o<-grep("^u", nn)
-      plot(x$res[,o])
-     }
-
-    if (param==4)
-     {
-      o<-grep("^v", nn)
-      plot(x$res[,o])
-     }
-   }
-
-
-  if (type.plot==2)
-   {
-    if (param==1)
-     {
-      o<-grep("alpha", nn)
-      gelman.plot(x$res[,o])
-     }
-
-    if (param==2)
-     {
-      o<-grep("loglambda", nn)
-      gelman.plot(x$res[,o])
-     }
-
-    if (param==3)
-     {
-      o<-grep("^u", nn)
-      gelman.plot(x$res[,o])
-     }
-
-    if (param==4)
-     {
-      o<-grep("^v", nn)
-      gelman.plot(x$res[,o])
-     }
-   }
-
-
- }
+  if (param==1) {
+    o<-grep("alpha", nn)
+    S <- ggmcmc::ggs(x$res[,o])
+    fun(S)
+  }
+  else if (param==2) {
+    o<-grep("beta", nn)
+    S <- ggmcmc::ggs(x$res[,o])
+    fun(S)
+  }
+  else if (param==3){
+    o<-grep("^u", nn)
+    S <- ggmcmc::ggs(x$res[,o])
+    fun(S)
+  }
+  else if (param==4){
+    o<-grep("^v", nn)
+    S <- ggmcmc::ggs(x$res[,o])
+    fun(S)
+  }
+}
 
