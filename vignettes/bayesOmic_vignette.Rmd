@@ -18,9 +18,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  message = FALSE, warning = FALSE,
-  fig.height=16, fig.width=8
+  comment = "",
+  message = FALSE, warning = FALSE
 )
 ```
 # Introduction
@@ -82,7 +81,7 @@ It is worth to notice that GWAS data is normally in PLINK format. The Genomic Da
 
 The model can be fitted by using the function `bayesSNPassoc` as follows:
 
-```{r run_SNP_model}
+```{r run_SNP_model, results='hide'}
 mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="")
 ```
 
@@ -133,8 +132,8 @@ mod
 
 On the other hand, specific and shared components can be visualize by:
 
-```{r specificSNP}
-plot(mod)
+```{r specificSNP, fig.height=16}
+plot(mod, type="specific")
 ```
 
 and
@@ -165,7 +164,7 @@ data(armengol)
 
 Model parameter estimates are obtained using the function `bayesOmicAssoc` by executing:
 
-```{r model_CNV}
+```{r model_CNV, results='hide'}
 mod.CNV <- bayesOmicAssoc(group="pop", data=armengol)
 ```
 
@@ -190,9 +189,8 @@ checkConvergence(mod.CNV, type="trace")
 
 The Specific components for each population can be obtained by typing:
 
-
-```{r specificCNV}
-makeHeatmap(mod.CNV, quantiles=c(.025, 0.2, 0.5, 0.8, 0.975))
+```{r specificCNV, fig.height=16}
+plot(mod.CNV, type="specific")
 ```
 
 We can obtain the name of the specific features of a given population by
@@ -200,6 +198,14 @@ We can obtain the name of the specific features of a given population by
 ```{r specificCNV_name}
 getSpecific(mod.CNV, group="YRI")
 ```
+
+
+The heatmap is obtained by:
+
+```{r heatmapCNV}
+makeHeatmap(mod.CNV, quantiles=c(.025, 0.2, 0.5, 0.8, 0.975))
+```
+
 
 # 5 Acknowledgments
 This work has been partly supported by ....  
