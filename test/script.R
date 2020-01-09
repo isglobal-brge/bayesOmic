@@ -3,8 +3,14 @@ data(armengol)
 mod <- bayesOmicAssoc(group = "pop", data=armengol)
 
 data(sim.data)
-y <- sim.data$caco
-SNPs <- sim.data[, -1]
+Y <- sim.data$caco
+X <- sim.data[, -1]
+
+data("armengol")
+Y <- armengol[,1]
+X <- armengol[,-1]
+
+
 mod <- bayesSNPassoc(group = y, data=SNPs, sep="")
 
 

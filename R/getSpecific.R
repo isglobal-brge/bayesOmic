@@ -12,7 +12,7 @@ getSpecific <- function(x, group){
   ss <- x$res.summary$lambda[[group]]
   ans <- ss[ss[,"sig"]!=0,]
   if (nrow(ans)==0){
-    cat("No shared components are significant. \n")
+    cat("No Specific components are significant. \n")
     ans <- NULL
   }
   ans

@@ -23,11 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 # Introduction
-This document provides an overview of the `bayesOmic` package that will be available at Bioconductor (http://bioconductor.org/). The package implements a Bayesian approach for omic association studies. We propose a shared-component model to tease out the feature information (e.g. SNPs, CNVs, genes, transcripts, CpGs) that is common to cases and controls from the one that is specific to cases. This allows to detect the SNPs (bayesSNPassoc function) or any continuos feature (`bayesCNVassoc` function) that show the strongest association with the disease. The model can nevertheless be applied to more than one disease. More detailed information about the model and assumptions are given in @abellan2010bayesian and @gonzalez2012bayesian in the case of analyzing SNPs or CNVs, respectively. We illustrate how to analyze SNP data by using a synthetic data set (WTCCC will also be included). The simulated data set
-contains information about 72 SNPs in 5 genes. It includes information for
-800 individuals divided in 4 populations: controls and 3 type of cases (M1,
-M2, and M3). We simulated SNPs from gene 1 to be associated with M1
-and SNPs from gene 3 to M3.  
+This document provides an overview of the `bayesOmic` package that will be available at Bioconductor (http://bioconductor.org/). The package implements a Bayesian approach for omic association studies. We propose a shared-component model to tease out the feature information (e.g. SNPs, CNVs, genes, transcripts, CpGs) that is common to cases and controls from the one that is specific to cases. This allows to detect the SNPs (bayesSNPassoc function) or any continuos feature (`bayesCNVassoc` function) that show the strongest association with the disease. The model can nevertheless be applied to more than one disease. More detailed information about the model and assumptions are given in @abellan2010bayesian and @gonzalez2012bayesian in the case of analyzing SNPs or CNVs, respectively. We illustrate how to analyze SNP data by using a synthetic data set of a targeted study (e.g. a selection of SNPs) and a GWAS data comparing different populations from 1000 Genomes project (To be supplied). 
   
 # Getting started
 The `bayesOmic` package uses JAGS, a program for analysis of Bayesian hierarchical models using Markov Chain Monte Carlo (MCMC) simulation @plummer2003jags, to estimate model parameters. The current implementation of `bayesOmic` is based on JAGS version 4.3.0. JAGS has an R interface rjags that is used by the package (rjags version 4-9).
@@ -47,7 +43,9 @@ library(bayesOmic)
 
 # Analysis of SNP data
 
-Let us illustrate how to apply our model to a GWAS study as described in @abellan2010bayesian. Let us start by describing how to get the data into R
+Let us illustrate how to apply our model to a GWAS study as described in @abellan2010bayesian. The examples correspond to a simulated data including information about 72 SNPs. It contains information of 800 individuals divided in 4 populations: controls and 3 type of cases (M1, M2, and M3). We simulated SNPs that are specific from gene 1 to be associated with M1 and SNPs from gene 3 to M3.  
+
+Let us start by describing how to get the data into R
 
 ## The data
 Data can be imported from a text file or can be loaded using snpMatrix
@@ -186,6 +184,13 @@ checkConvergence(mod.CNV)
 ```{r check_model_CNV_2}
 checkConvergence(mod.CNV, type="trace")
 ```
+
+The shared components are
+
+```{r sharedCNV, fig.height=8}
+plot(mod.CNV, type="shared")
+```
+
 
 The Specific components for each population can be obtained by typing:
 

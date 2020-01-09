@@ -1,8 +1,8 @@
 #' Bayesian model to analyze CNV data
 #' 
 #' @aliases bayesOmicAssoc plot.bayesOmic print.bayesOmic
-#' @param group 
-#' @param data 
+#' @param group name of grouping variable
+#' @param data omic data. It can be a data frame, ...
 #' @param miss.indiv minimum percentage of missing individuals allowed. Default is 0.9
 #' @param sig.level significance level
 #' @param n.iter.burn.in 
@@ -19,14 +19,14 @@ bayesOmicAssoc <- function(group, data, miss.indiv = 0.9, sig.level = 0.05,
 
    ## Get required data 
    if (is(data, "ExpressionSet")){
-      X <- Biobase::exprs(data)
+      X <- t(Biobase::exprs(data))
       Y <- Biobase::pData(data)[, group]
    } else if (is(data, "SummarizedExperiment")){
-      X <- SummarizedExperiment::assay(data)
+      X <- t(SummarizedExperiment::assay(data))
       Y <- SummarizedExperiment::colData(data)[, group]
    } else if (is.data.frame(data)){
       i <- which(colnames(data)==group)
-      X <- data[ , -i]
+      X <- t(data[ , -i])
       Y <- data[ , i]
    } else {
       stop("set must be a data.frame, ExpressionSet or a SummarizedExperiment.")
