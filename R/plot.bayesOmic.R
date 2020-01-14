@@ -26,9 +26,10 @@ plot.bayesOmic <- function (x, type="specific", ...)
       add_column(feature=rep(x$names.features, N.groups))
     names(df)[1:5] <- c("group", "inf", "median", "sup", "sig")
     
-    df$mycol <- ifelse(df$sig==0, "lightgray", ifelse(df$sig=="-1", "red", "blue"))
+    df$mycol <- ifelse(df$sig==0, "gray", ifelse(df$sig=="-1", "red", "blue"))
     plt <- ggplot(df, aes(y=feature, x=median, col=mycol)) + 
-      geom_errorbarh(aes(xmin=inf, xmax=sup)) + facet_grid(group ~ .) 
+      geom_errorbarh(aes(xmin=inf, xmax=sup)) + ylab("Feature") + 
+      xlab("Median and Credible Interval") + facet_grid(group ~ .) 
   }
   
   if (type.sel==2){

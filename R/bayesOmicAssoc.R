@@ -26,7 +26,7 @@ bayesOmicAssoc <- function(group, data, miss.indiv = 0.9, sig.level = 0.05,
       Y <- SummarizedExperiment::colData(data)[, group]
    } else if (is.data.frame(data)){
       i <- which(colnames(data)==group)
-      X <- t(data[ , -i])
+      X <- data[ , -i]
       Y <- data[ , i]
    } else {
       stop("set must be a data.frame, ExpressionSet or a SummarizedExperiment.")
@@ -53,7 +53,7 @@ bayesOmicAssoc <- function(group, data, miss.indiv = 0.9, sig.level = 0.05,
 # filter features missing individuals
    selec1 <- rep(TRUE, nrow(O))   
    
-# filter features by missing (to be supplied)
+# filter features by low values (close to 0 ???)
 #     selec2<-apply(O/N, 1, max)>0.05
    selec2 <- rep(TRUE, length(selec1))
    O <- O[selec1 & selec2, ] 

@@ -80,7 +80,7 @@ It is worth to notice that GWAS data is normally in PLINK format. The Genomic Da
 The model can be fitted by using the function `bayesSNPassoc` as follows:
 
 ```{r run_SNP_model, results='hide'}
-mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="")
+mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="JAGS")
 ```
 
 
@@ -119,6 +119,28 @@ The trace plot can be obtained by
 ```{r checkConvergenceGR, fig.cap="Chains convergence of `alpha` parameter for SNP model of 'sim.data' using Gelman-Rubin method."}
 checkConvergence(mod, type = "trace")
 ```
+
+
+The JAGS estimation can be very time consuming. INLA (Integrated Nested Laplace Approximation) can be used instead
+
+```{r run_SNP_model_INLA, results='hide'}
+mod.inla <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="INLA")
+```
+
+The `print()` and `plot()` functions also works with this method
+
+This are the shared components
+
+```{r plot_shared_INLA}
+plot(mod.inla, type="shared")
+```
+
+and this the specific
+
+```{r plot_specific_INLA}
+plot(mod.inla, type="specific")
+```
+
 
 ## Results
 
