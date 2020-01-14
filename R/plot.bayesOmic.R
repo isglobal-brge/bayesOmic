@@ -26,19 +26,24 @@ plot.bayesOmic <- function (x, type="specific", ...)
       add_column(feature=rep(x$names.features, N.groups))
     names(df)[1:5] <- c("group", "inf", "median", "sup", "sig")
     
-    df$mycol <- ifelse(df$sig==0, "gray", ifelse(df$sig=="-1", "red", "blue"))
-    plt <- ggplot(df, aes(y=feature, x=median, col=mycol)) + 
-      geom_errorbarh(aes(xmin=inf, xmax=sup)) + ylab("Feature") + 
-      xlab("Median and Credible Interval") + facet_grid(group ~ .) 
+    df$significance <- ifelse(df$sig==0, "Not Significant", ifelse(df$sig=="-1", "Negative Significance", "Positive Significance"))
+    plt <- ggplot(df, aes(y=feature, x=median, col=significance)) + 
+      scale_color_manual(values=c("Not Significant" = "grey", "Negative Significance" = "red", "Positive Significance" = "blue")) +
+      geom_errorbarh(aes(xmin=inf, xmax=sup)) +
+      ylab("Feature") + 
+      xlab("Median and Credible Interval") + 
+      facet_grid(group ~ .)  
   }
   
   if (type.sel==2){
     df <- data.frame(x$res.summary$u.stats)
     names(df) <- c("mean", "inf", "median", "sup")
     df$feature <- rownames(df)
-    df$mycol <- ifelse(df$inf>0, "red", ifelse(df$sup<0, "blue", "lightgray"))
-    plt <- ggplot(df, aes(y=feature, x=median, col=mycol)) +
-      geom_errorbarh(aes(xmin=inf, xmax=sup)) + ylab("Feature") + 
+    df$significance <- ifelse(df$inf>0, "Positive Significance", ifelse(df$sup<0, "Negative Significance", "Not Significant"))
+    plt <- ggplot(df, aes(y=feature, x=median, col=significance)) +
+      scale_color_manual(values=c("Negative Significance" = "red", "Not Significant" = "lightgray", "Positive Significance" = "blue")) +
+      geom_errorbarh(aes(xmin=inf, xmax=sup)) + 
+      ylab("Feature") + 
       xlab("Median and Credible Interval")
       
   }

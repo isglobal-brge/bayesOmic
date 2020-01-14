@@ -1,6 +1,15 @@
 library(bayesOmic)
 data(armengol)
-mod <- bayesOmicAssoc(group = "pop", data=armengol)
+mod <- bayesOmicAssoc(group="pop", data=armengol)
+plot(mod, type="specific")
+plot(mod, type="shared")
+
+
+
+
+
+
+
 
 data(sim.data)
 Y <- sim.data$caco
