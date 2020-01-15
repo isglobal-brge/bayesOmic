@@ -3,10 +3,11 @@
 #' @param x object of class 'bayesOmic'
 #' @param mfrow 
 #' @param pos.legend position of the plot legend
+#' @param show.y.lab wether to show or not y labs
 #' 
 #' @S3method plot bayesOmic
 
-plot.bayesOmic <- function (x, type="specific", ...)
+plot.bayesOmic <- function (x, type="specific", show.y.lab = FALSE, ...)
 {
   if (!inherits(x, "bayesOmic"))
     stop("object must be of class 'bayesOmic'")
@@ -32,7 +33,12 @@ plot.bayesOmic <- function (x, type="specific", ...)
       geom_errorbarh(aes(xmin=inf, xmax=sup)) +
       ylab("Feature") + 
       xlab("Median and Credible Interval") + 
-      facet_grid(group ~ .)  
+      facet_grid(group ~ .) +
+    if(!show.y.lab) {
+      theme(axis.title.y=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank())}
+    
   }
   
   if (type.sel==2){
@@ -44,7 +50,11 @@ plot.bayesOmic <- function (x, type="specific", ...)
       scale_color_manual(values=c("Negative Significance" = "red", "Not Significant" = "lightgray", "Positive Significance" = "blue")) +
       geom_errorbarh(aes(xmin=inf, xmax=sup)) + 
       ylab("Feature") + 
-      xlab("Median and Credible Interval")
+      xlab("Median and Credible Interval") +
+      if (!show.y.lab) {
+        theme(axis.title.y=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank())}
       
   }
   

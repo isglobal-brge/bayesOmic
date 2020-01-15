@@ -3,11 +3,29 @@ data(armengol)
 mod <- bayesOmicAssoc(group="pop", data=armengol)
 plot(mod, type="specific")
 plot(mod, type="shared")
+x<-mod
+N.groups <- x$N.groups
+
+show.y.lab = TRUE
+lambda <- x$res.summary$lambda
+df <- plyr::ldply (lambda, data.frame) %>% 
+  add_column(feature=rep(x$names.features, N.groups))
+names(df)[1:5] <- c("group", "inf", "median", "sup", "sig")
+
+df$significance <- ifelse(df$sig==0, "Not Significant", ifelse(df$sig=="-1", "Negative Significance", "Positive Significance"))
+plt <- ggplot(df, aes(y=feature, x=median, col=significance)) + 
+  scale_color_manual(values=c("Not Significant" = "grey", "Negative Significance" = "red", "Positive Significance" = "blue")) +
+  geom_errorbarh(aes(xmin=inf, xmax=sup)) +
+  ylab("Feature") + 
+  xlab("Median and Credible Interval") + 
+  facet_grid(group ~ .) +
+  if(!show.y.lab) {
+    theme(axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank())}
 
 
-
-
-
+plt
 
 
 
