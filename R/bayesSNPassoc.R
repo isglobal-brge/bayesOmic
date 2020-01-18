@@ -103,7 +103,7 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       for (i in 1:n.chain) {
        alpha <- rnorm(Ngroups, 0, 1)
        logbeta <- rnorm(Ngroups - 1, 0, 1)
-       u <- rnorm(Nvar, 0, 1)
+       u <- rnorm(N.features, 0, 1)
        v <- matrix(rnorm(N.features * (Ngroups - 1), 0, 1), N.features, Ngroups - 1)
        sigma.v <- abs(rnorm(Ngroups - 1, 0, 1))
        sigma.beta <- abs(rnorm(1))
@@ -120,11 +120,11 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       res <- coda.samples(ans, variable.names = c("alpha", "beta", "u", "v", "pp.v", "pi"), 
                         n.iter = n.iter, thin = thin)
 
-      res.summary <- getInfoBayesSNPassoc(res, Ngroups, N.features, names.groups, names.SNPs, qq)
+      res.summary <- getInfoBayesSNPassoc(res, Ngroups, N.features, names.groups, names.features, qq)
     
       out <- list(res = res, res.summary = res.summary, model = ans,
             N.groups = Ngroups, N.features = N.features, names.groups = names.groups,
-            names.features = names.SNPs)
+            names.features = names.features)
     
     }
     
@@ -157,6 +157,7 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       
       # general way of writing formula (for any number of groups)
       ff.ini <- "y ~ alpha -1 + f(j1, model='iid', constr=TRUE, initial=-1, hyper='logtnormal')"
+      ff.ini <- "y ~ alpha -1 + j1 + j2 + j3 + j4"
       
       # removed from initial ... It seems it is OK .. also removed from 'formula.inla' 
       # ff.j <- paste("f(j", 2:Ngroups, " ,copy='j1', fixed=FALSE)", sep="" ,collapse=" + ")
