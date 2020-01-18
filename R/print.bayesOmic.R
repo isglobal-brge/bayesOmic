@@ -8,8 +8,8 @@
 
 print.bayesOmic <- function(x, ...)
  {
-  alpha<-x$res.summary$alpha.stats
-  beta<-x$res.summary$beta.stats
+  alpha<-x$res.summary$alpha
+  beta<-x$res.summary$beta
   cat("\n Intercepts (alpha): \n")
   print(alpha)
   cat("\n Coefficients of shared components (beta): \n")
