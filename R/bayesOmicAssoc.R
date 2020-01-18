@@ -3,6 +3,7 @@
 #' @aliases bayesOmicAssoc plot.bayesOmic print.bayesOmic
 #' @param group name of grouping variable
 #' @param data omic data. It can be a data frame, ...
+#' @param roi Range of interest. A vector containing the chromosome number and the start-end positions
 #' @param miss.indiv minimum percentage of missing individuals allowed. Default is 0.9
 #' @param sig.level significance level
 #' @param n.iter.burn.in 
@@ -12,7 +13,7 @@
 #' @export
 
 
-bayesOmicAssoc <- function(group, data, miss.indiv = 0.9, sig.level = 0.05, 
+bayesOmicAssoc <- function(group, data, roi=NA, miss.indiv = 0.9, sig.level = 0.05, 
                            n.iter.burn.in=1000, n.iter=5000, thin=10,
                            n.chain=2, ...)
  {
@@ -22,6 +23,10 @@ bayesOmicAssoc <- function(group, data, miss.indiv = 0.9, sig.level = 0.05,
       X <- t(Biobase::exprs(data))
       Y <- Biobase::pData(data)[, group]
    } else if (is(data, "SummarizedExperiment")){
+     if (!is.na(roi)){
+       range <- GRanges(seqnames = roi[1], ranges=roi[2])
+       data<-subsetByOverlaps(airway, range)
+     }
       X <- t(SummarizedExperiment::assay(data))
       Y <- SummarizedExperiment::colData(data)[, group]
    } else if (is.data.frame(data)){
