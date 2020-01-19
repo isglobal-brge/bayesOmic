@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 # Introduction
-This document provides an overview of the `bayesOmic` package that will be available at Bioconductor (http://bioconductor.org/). The package implements a Bayesian approach for omic association studies. We propose a shared-component model to tease out the feature information (e.g. SNPs, CNVs, genes, transcripts, CpGs) that is common to cases and controls from the one that is specific to cases. This allows to detect the SNPs (bayesSNPassoc function) or any continuos feature (`bayesCNVassoc` function) that show the strongest association with the disease. The model can nevertheless be applied to more than one disease. More detailed information about the model and assumptions are given in @abellan2010bayesian and @gonzalez2012bayesian in the case of analyzing SNPs or CNVs, respectively. We illustrate how to analyze SNP data by using a synthetic data set of a targeted study (e.g. a selection of SNPs) and a GWAS data comparing different populations from 1000 Genomes project (To be supplied). 
+This document provides an overview of the `bayesOmic` package that will be available at Bioconductor (http://bioconductor.org/). The package implements a Bayesian approach for omic association studies. We propose a shared-component model to tease out the feature information (e.g. SNPs, CNVs, genes, transcripts, CpGs) that is common to cases and controls from the one that is specific to cases. This allows to detect the SNPs (bayesSNPassoc function) or any continuos feature (`bayesOmicAssoc` function) that show the strongest association with the disease. The model can nevertheless be applied to more than one disease. More detailed information about the model and assumptions are given in @abellan2010bayesian and @gonzalez2012bayesian in the case of analyzing SNPs or CNVs, respectively. We illustrate how to analyze SNP data by using a synthetic data set of a targeted study (e.g. a selection of SNPs), GWAS data comparing different populations from 1000 Genomes project (To be supplied) and expression data (i.e. a RangedSummarizedExperiment object for an RNA-Seq experiment) on four human airway smooth muscle cell lines.
   
 # Getting started
 The `bayesOmic` package uses JAGS, a program for analysis of Bayesian hierarchical models using Markov Chain Monte Carlo (MCMC) simulation @plummer2003jags, to estimate model parameters. The current implementation of `bayesOmic` is based on JAGS version 4.3.0. JAGS has an R interface rjags that is used by the package (rjags version 4-9).
@@ -123,21 +123,21 @@ checkConvergence(mod, type = "trace")
 
 The JAGS estimation can be very time consuming. INLA (Integrated Nested Laplace Approximation) can be used instead
 
-```{r run_SNP_model_INLA, results='hide'}
+```{r run_SNP_model_INLA, results='hide', eval=FALSE}
 mod.inla <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="INLA")
 ```
 
-The `print()` and `plot()` functions also works with this method
+The `print()` and `plot()` functions also work with this method
 
 This are the shared components
 
-```{r plot_shared_INLA}
+```{r plot_shared_INLA, eval=FALSE}
 plot(mod.inla, type="shared")
 ```
 
 and this the specific
 
-```{r plot_specific_INLA}
+```{r plot_specific_INLA, eval=FALSE}
 plot(mod.inla, type="specific")
 ```
 
@@ -233,8 +233,76 @@ The heatmap is obtained by:
 makeHeatmap(mod.CNV, quantiles=c(.025, 0.2, 0.5, 0.8, 0.975))
 ```
 
+# Analysis of expression data (SummarizedExperiment objects)
 
-# 5 Acknowledgments
+Dataset can be loaded by typing:
+
+```{r}
+library(airway)
+data(airway)
+```
+
+We can analyse a specific genomic range of interest (i.e. chromosome 1, positions 1 to 10000000). We define the `roi` by executing:
+
+```{r roi, results='hide'}
+library(GenomicRanges)
+library(IRanges)
+roi <- GRanges(seqnames = "1", ranges= IRanges(1,10000000))
+```
+
+Model parameter estimates are obtained using the function `bayesOmicAssoc` with the argument `roi` by executing:
+
+```{r model_Expr, results='hide'}
+mod.Expr <- bayesOmicAssoc(group="dex", data=airway, roi = roi)
+```
+
+
+The intercept ans coefficient of shared components of populations can be obtained by:
+
+```{r int_shared_Expr}
+mod.Expr
+```
+
+
+We can check model convergence by
+
+```{r check_model_Expr}
+checkConvergence(mod.Expr)
+```
+
+
+```{r check_model_Expr_2}
+checkConvergence(mod.Expr, type="trace")
+```
+
+The shared components are
+
+```{r sharedExpr, fig.height=8}
+plot(mod.Expr, type="shared")
+```
+
+
+The Specific components for each population can be obtained by typing:
+
+```{r specificExpr, fig.height=16}
+plot(mod.Expr, type="specific")
+```
+
+We can obtain the name of the specific features of a given population by
+
+```{r specificExpr_name}
+getSpecific(mod.Expr, group="trt")
+```
+
+
+The heatmap is obtained by:
+
+```{r heatmapExpr}
+makeHeatmap(mod.Expr, quantiles=c(.025, 0.2, 0.5, 0.8, 0.975))
+```
+
+
+# Acknowledgments
 This work has been partly supported by ....  
 
 # References

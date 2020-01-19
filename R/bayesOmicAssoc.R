@@ -24,8 +24,7 @@ bayesOmicAssoc <- function(group, data, roi=NA, miss.indiv = 0.9, sig.level = 0.
       Y <- Biobase::pData(data)[, group]
    } else if (is(data, "SummarizedExperiment")){
      if (!is.na(roi)){
-       range <- GRanges(seqnames = roi[1], ranges=roi[2])
-       data<-subsetByOverlaps(data, range)
+       data<-subsetByOverlaps(data, roi)
      }
       X <- t(SummarizedExperiment::assay(data))
       Y <- SummarizedExperiment::colData(data)[, group]
