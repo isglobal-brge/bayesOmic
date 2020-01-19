@@ -1,4 +1,5 @@
 library(bayesOmic)
+library(GenomicRanges)
 data(armengol)
 mod <- bayesOmicAssoc(group="pop", data=armengol)
 plot(mod2, type="specific")
@@ -9,14 +10,21 @@ library(airway)
 data(airway)
 airway
 
-roi<-c("2", "100000-1100000")
+roi1<-c(1, "100000-1100000")
+roi2<-c(2, "100000-1100000")
+roi<-c("c(1, 2)", "100000-1100000")
 
 range <- GRanges(seqnames = roi[1], ranges=roi[2])
-airway2<-subsetByOverlaps(airway, range)
+data<-subsetByOverlaps(airway, range)
+data
 
-mod <- bayesOmicAssoc(group="dex", data=airway2)
+mod1 <- bayesOmicAssoc(group="dex", data=airway, roi=roi1)
+mod2 <- bayesOmicAssoc(group="dex", data=airway, roi=roi2)
+mod <- bayesOmicAssoc(group="dex", data=airway, roi=roi)
 
-mod2 <- bayesOmicAssoc(group="dex", data=airway, roi=roi)
+plot(mod1, type="specific")
+plot(mod2, type="specific")
+
 
 GRanges(airway)
 type(airway)
