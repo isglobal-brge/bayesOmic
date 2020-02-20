@@ -8,7 +8,7 @@ Suggests:
     RColorBrewer,
     knitr,
     rmarkdown
-Author: Juan R Gonzalez <juanr.gonzalez@isglobal.org> 
+Author: Laura Balague <laura.balague@isglobal.org> and Juan R Gonzalez <juanr.gonzalez@isglobal.org> 
 Maintainer: Juan R Gonzalez <juanr.gonzalez@isglobal.org>
 Description: Bayesian shared component model to analyze SNP and CNV data in genetic studies
 License: MIT
