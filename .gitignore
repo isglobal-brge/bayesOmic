@@ -40,3 +40,6 @@ inst/doc
 
 # Mac files
 *.DS_Store
+
+# Vignettes
+vignettes/*_files/
