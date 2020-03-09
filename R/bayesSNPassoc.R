@@ -75,7 +75,7 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
     selec1 <- miss >= call.rate
     selec2 <- apply(O/N, 1, max) > min.freq
     N <- N[selec1 & selec2, ]
-    O <<- O[selec1 & selec2, ]
+    O <- O[selec1 & selec2, ]
     
     
     #
