@@ -133,7 +133,8 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       nd <- N.features * Ngroups
       y.obs <- as.vector(O)
       two.n <- 2 * as.vector(N)
-      a <- names.features
+      a <- 1:N.features
+      #a <- names.features
       b <- rep(NA, N.features)
       
       # general way of writting j1, j2, ..., jNgroups 
@@ -157,14 +158,15 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       
       # general way of writing formula (for any number of groups)
       ff.ini <- "y ~ alpha -1 + f(j1, model='iid', constr=TRUE, initial=-1, hyper='logtnormal')"
-      ff.ini <- "y ~ alpha -1 + j1 + j2 + j3 + j4"
+      #fs <- paste(paste0("j", 2:Ngroups), collapse="+")
+      #ff.ini <- paste("y ~ alpha -1 +", fs)
       
       # removed from initial ... It seems it is OK .. also removed from 'formula.inla' 
-      # ff.j <- paste("f(j", 2:Ngroups, " ,copy='j1', fixed=FALSE)", sep="" ,collapse=" + ")
+      ff.j <- paste("f(j", 2:Ngroups, " ,copy='j1', fixed=FALSE)", sep="" ,collapse=" + ")
       
       ff.lambda <- paste("f(lambda", 1:(Ngroups-1), " , model='iid', hyper='logtnormal')", sep="" ,collapse=" + ")
       
-      formula.inla <- formula(paste(ff.ini,  ff.lambda, sep=" + "))
+      formula.inla <- formula(paste(ff.ini,  ff.j, ff.lambda, sep=" + "))
       
       
       res <- inla(formula.inla, family = "binomial", data = data,
@@ -190,7 +192,12 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       res.summary$u.stats <- res$summary.random$j1[,idx+1]
       rownames(res.summary$u.stats) <- res$summary.random$j1$ID
       res.summary$u.stats$sig <- ifelse(res.summary$u.stats[4] < 0, -1, ifelse(res.summary$u.stats[2]>0, 1, 0))
-      res.summary$lambda <- lapply(res$summary.random[-1], ff)
+      
+      
+      nn <- names(res$summary.random)
+      ii <- grep("lambda", nn)
+      res.summary$lambda <- lapply(res$summary.random[ii], ff)
+  
       names(res.summary$lambda) <- names.groups[-1]
       res.summary$predicted <- sapply(res$summary.linear.predictor[,5], function(x) exp(x)/(1+exp(x)))
       

@@ -19,7 +19,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "",
-  message = FALSE, warning = FALSE
+  message = FALSE, warning = FALSE, cache=TRUE
 )
 ```
 # Introduction
@@ -123,23 +123,10 @@ checkConvergence(mod, type = "trace")
 
 The JAGS estimation can be very time consuming. INLA (Integrated Nested Laplace Approximation) can be used instead
 
-```{r run_SNP_model_INLA, results='hide', eval=FALSE}
+```{r run_SNP_model_INLA, results='hide'}
 mod.inla <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="INLA")
 ```
 
-The `print()` and `plot()` functions also work with this method
-
-This are the shared components
-
-```{r plot_shared_INLA, eval=FALSE}
-plot(mod.inla, type="shared")
-```
-
-and this the specific
-
-```{r plot_specific_INLA, eval=FALSE}
-plot(mod.inla, type="specific")
-```
 
 
 ## Results
@@ -150,7 +137,12 @@ Model parameters (intercept and shared component) can be obtained by using print
 mod
 ```
 
-On the other hand, specific and shared components can be visualize by:
+```{r showParam2}
+mod.inla
+```
+
+
+On the other hand, specific components can be visualize by:
 
 ```{r specificSNP, fig.height=16}
 plot(mod, type="specific")
@@ -158,8 +150,8 @@ plot(mod, type="specific")
 
 and
 
-```{r sharedSNP}
-plot(mod, type = "shared")
+```{r sharedSNP, fig.height=16}
+plot(mod.inla, type = "specific")
 ```
 
 respectively.
@@ -167,7 +159,7 @@ respectively.
 Finally, a hierarchical clustering can be performed by using the predicted probabilities by typing:
 
 ```{r}
-makeHeatmap(mod)
+makeHeatmap(mod.inla)
 ```
 
 The figure shows a Heatmap were we can observe that groups M1 and M3 are different from controls and group M2. 
