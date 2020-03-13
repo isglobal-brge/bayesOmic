@@ -1,9 +1,9 @@
 Package: bayesOmic
 Type: Package
 Title: Bayesian modeling for omic data analysis
-Version: 0.5.0
+Version: 0.6.0
 Date: 2020-01-08
-Depends: R (>= 3.6.0), INLA, rjags, tidyverse, SNPassoc, ggmcmc
+Depends: R (>= 3.6.0), dclone, INLA, tidyverse, SNPassoc, ggmcmc, dclone
 Suggests: 
     RColorBrewer,
     knitr,

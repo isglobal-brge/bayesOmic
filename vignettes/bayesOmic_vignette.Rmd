@@ -80,14 +80,16 @@ It is worth to notice that GWAS data is normally in PLINK format. The Genomic Da
 The model can be fitted by using the function `bayesSNPassoc` as follows:
 
 ```{r run_SNP_model, results='hide'}
-mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="JAGS")
+mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", n.cores=3)
 ```
 
 
 The function `bayesSNPassoc` prepares the data (NOTE: it aggregates the number of rare alleles by the grouping variable. When SNP data is a data.frame it uses
 `SNPassoc` package to get the number of rare alleles. In that case  the `sep.allele` argument defines how alleles are separated - `sep.allele=""` is the default value). 
-Then the function calls `rjags` to estimate model parameters. We have set up the following default arguments
-to be passed through rjags functions:
+Then the function calls `rjags` trough `dclone` package using the function `jags.parfit` to estimate model parameters. The argument `n.cores` indicates the number of cores used to fit the model if multiple processors are available. By default `n.cores=1`. 
+
+
+We have set up the following default arguments to be passed through rjags functions:
 
 ```{r}
 args(bayesSNPassoc)

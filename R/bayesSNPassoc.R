@@ -13,16 +13,20 @@
 #' @param sig.level significance level.
 #' @param method estimating method. It can be INLA (default) or JAGS.
 #' @param n.iter.burn.in 
+#' @param n.adapt
 #' @param n.iter 
 #' @param thin 
 #' @param n.chain 
+#' @param n.cores
 #' @param ... other arguments to be passed trough INLA::inla
 #' @export
 
 
 bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rate = 0.9, min.freq=0.05, 
-                           sig.level = 0.05, method="inla", n.iter.burn.in = 1000, n.iter = 5000, thin = 10, n.chain = 2,
-                            ...)
+                           sig.level = 0.05, method="JAGS", 
+                           n.iter.burn.in = 1000, n.adapt=100,
+                           n.iter = 5000, thin = 5, n.chain = 2,
+                           n.cores = 1, ...)
 {
 
   methods <- c("JAGS", "INLA")
@@ -96,33 +100,43 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
     qq <- c(alpha.corrected, 0.25, 0.5, 0.75, 1-alpha.corrected)
     
     if (type==1) {
+      
+      setts <- list('n.iter' = n.iter, 'n.thin' = thin, 'n.burn' = n.iter.burn.in,
+                    'n.chains' = n.chain, 'n.adapt' = n.adapt)
+      
       data.JAGS <- list(Ngroups = Ngroups, Nvar = N.features, O = O, N = N)
-    
-      initials.JAGS <- list()
-    
-      for (i in 1:n.chain) {
-       alpha <- rnorm(Ngroups, 0, 1)
-       logbeta <- rnorm(Ngroups - 1, 0, 1)
-       u <- rnorm(N.features, 0, 1)
-       v <- matrix(rnorm(N.features * (Ngroups - 1), 0, 1), N.features, Ngroups - 1)
-       sigma.v <- abs(rnorm(Ngroups - 1, 0, 1))
-       sigma.beta <- abs(rnorm(1))
-       sigma.u <- abs(rnorm(1))
-       initials.JAGS[[i]] <- list(alpha = alpha, logbeta = logbeta,
-                u = u, v = v, sigma.u = sigma.u, sigma.v = sigma.v,
-                sigma.beta = sigma.beta)
+      
+      sharedModel <- system.file("extdata/JAGSmodels/model_SNPs_controls.bug", package = "bayesOmic")           
+      params <- c("alpha", "beta", "u", "v", "pp.v", "pi")
+      
+      if (n.cores>1){
+        cl <- makePSOCKcluster(n.cores)
+        tmp <- clusterEvalQ(cl, library(dclone))
+        res <- jags.parfit(cl = cl, data = data.JAGS,
+                         params = params, 
+                         model = sharedModel, 
+                         n.chains = setts$n.chains, 
+                         n.adapt = setts$n.adapt, 
+                         n.update = setts$n.burn,
+                         n.iter = setts$n.iter, 
+                         thin = setts$n.thin)
+        stopCluster(cl)
+      }
+      else{
+        res <- jags.fit(data = data.JAGS,
+                        params = params, 
+                        model = sharedModel, 
+                        n.chains = setts$n.chains, 
+                        n.adapt = setts$n.adapt, 
+                        n.update = setts$n.burn,
+                        n.iter = setts$n.iter, 
+                        thin = setts$n.thin)
       }
       
-      ans <- jags.model(system.file("extdata/JAGSmodels/model_SNPs_controls.bug", package = "bayesOmic"),
-            data = data.JAGS, inits = initials.JAGS, n.chain = n.chain,
-            ...)
-      update(ans, n.iter.burn.in)
-      res <- coda.samples(ans, variable.names = c("alpha", "beta", "u", "v", "pp.v", "pi"), 
-                        n.iter = n.iter, thin = thin)
-
-      res.summary <- getInfoBayesSNPassoc(res, Ngroups, N.features, names.groups, names.features, qq)
+      res.summary <- getInfoBayesSNPassoc(res, Ngroups, N.features, 
+                                          names.groups, names.features, qq)
     
-      out <- list(res = res, res.summary = res.summary, model = ans,
+      out <- list(res = res, res.summary = res.summary, 
             N.groups = Ngroups, N.features = N.features, names.groups = names.groups,
             names.features = names.features)
     
