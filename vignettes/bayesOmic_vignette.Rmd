@@ -41,7 +41,7 @@ Then, the package is loaded as usual
 library(bayesOmic)
 ```
 
-# Analysis of SNP data
+# Analysis of SNP data: small datasets
 
 Let us illustrate how to apply our model to a GWAS study as described in @abellan2010bayesian. The examples correspond to a simulated data including information about 72 SNPs. It contains information of 800 individuals divided in 4 populations: controls and 3 type of cases (M1, M2, and M3). We simulated SNPs that are specific from gene 1 to be associated with M1 and SNPs from gene 3 to M3.  
 
@@ -64,15 +64,13 @@ dim(sim.data)
 sim.data[1:5, 1:5]
 ```
 
-The package requires to have the case-control status and the SNPs in to
-different objects:
+We can use `SNPassoc` package to prepare the data to perform data analysis. 
 
-```{r get model}
-y <- sim.data$caco
-SNPs <- sim.data[, -1]
+```{r get data}
+library(SNPassoc)
+ii <- grep("snp", colnames(sim.data))
+SNPs <- setupSNP(sim.data, colSNPs = ii, sep="")
 ```
-
-It is worth to notice that GWAS data is normally in PLINK format. The Genomic Data Storage format is  .....   To be supplied (modify function)
 
 
 ## Model parameter estimates
@@ -80,13 +78,11 @@ It is worth to notice that GWAS data is normally in PLINK format. The Genomic Da
 The model can be fitted by using the function `bayesSNPassoc` as follows:
 
 ```{r run_SNP_model, results='hide'}
-mod <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", n.cores=3)
+mod <- bayesSNPassoc( ~ caco, data=SNPs, n.cores=3)
 ```
 
 
-The function `bayesSNPassoc` prepares the data (NOTE: it aggregates the number of rare alleles by the grouping variable. When SNP data is a data.frame it uses
-`SNPassoc` package to get the number of rare alleles. In that case  the `sep.allele` argument defines how alleles are separated - `sep.allele=""` is the default value). 
-Then the function calls `rjags` trough `dclone` package using the function `jags.parfit` to estimate model parameters. The argument `n.cores` indicates the number of cores used to fit the model if multiple processors are available. By default `n.cores=1`. 
+The function `bayesSNPassoc` prepares the data (i.e, it aggregates the number of rare alleles by the grouping variable). Then the function calls `jags.parfit` from `dclone` package. The argument `n.cores` indicates the number of cores used to fit the model if multiple processors are available. By default `n.cores=1`. 
 
 
 We have set up the following default arguments to be passed through rjags functions:
@@ -103,8 +99,8 @@ The function also has two arguments to perform a simple quality control. The arg
 
 ## Checking convergence
 Before interpreting the simulations obtained from de a posteriori distri bution (e.g. model parameters), Markov chains convergence migth be verified. This can be done by using the function `checkConvergence`. This function has an argument called
-`type` that defines the type of plot to be obtained. When `type="Markov
-chain"` (default value) the function calls to `plot.mcmc()` function from package `coda` Ontherwise, Gelman-Rubin plots are displayed. The function `checkConvergence` has another argument, parameter, to indicate the model parameter to be summaryzed. The default is `alpha`. For example, Figure \ref{fig:checkConvergence} can be obtained by executing:
+`type` that defines the type of plot to be obtained. When `type`='Markov
+chain' (default value) the function calls `plot.mcmc()` function from package `coda` Ontherwise, Gelman-Rubin plots are displayed. The function `checkConvergence` has another argument, parameter, to indicate the model parameter to be summaryzed. The default is `alpha`. For example, Figure \ref{fig:checkConvergence} can be obtained by executing:
 
 ```{r checkConvergence, fig.cap="Chains convergence of `alpha` parameter for SNP model of 'sim.data'."}
 checkConvergence(mod)
@@ -126,10 +122,8 @@ checkConvergence(mod, type = "trace")
 The JAGS estimation can be very time consuming. INLA (Integrated Nested Laplace Approximation) can be used instead
 
 ```{r run_SNP_model_INLA, results='hide'}
-mod.inla <- bayesSNPassoc(group = y, data=SNPs, sep.allele="", method="INLA")
+mod.inla <- bayesSNPassoc( ~ caco , data=SNPs, method="INLA")
 ```
-
-
 
 ## Results
 
@@ -166,6 +160,67 @@ makeHeatmap(mod.inla)
 
 The figure shows a Heatmap were we can observe that groups M1 and M3 are different from controls and group M2. 
 
+
+# Analysis of GWAS data: data in PLINK format
+
+GWAS data is normally stored in PLINK format. Genomic Data Storage (GDS) is a very efficient way of deal with this data in R. Also, `GWASTools` package can be use to properly store both genomic and phenotypic dat and help to perform statistical data analyses. Here we illustrate how to estimate the shared component model using a real data example interested in determining whether there are specific obesity genes in males or females. 
+
+```{r load_gwastools}
+library(GWASTools)
+library(SNPRelate)
+```
+
+Let us load the phenotypic data
+
+```{r load_obesity}
+pp <- "c:/juan/CREAL/GitHub/brgedata/inst/extdata"
+obesity <- read.delim(file.path(pp, "obesity.txt"), as.is=TRUE)
+```
+
+Now, lets create our variable of interest
+
+```{r create_var}
+obesity$group <- rep(NA, nrow(obesity))
+obesity$group[obesity$obese==0] <- "control"
+obesity$group[obesity$obese==1 & obesity$gender=="Male"] <- "caseMale"
+obesity$group[obesity$obese==1 & obesity$gender=="Female"] <- "caseFemale"
+table(obesity$group)
+```
+  
+It is always recommended to relevel the grouping variable having the control samples as the reference
+
+```{r relevel}
+obesity$group <- factor(obesity$group, 
+                        levels = c("control", "caseFemale", "caseMale"))
+table(obesity$group)
+```
+  
+```  {r create_gds}
+snpgdsBED2GDS(file.path(pp, "obesity.bed"), 
+              file.path(pp, "obesity.fam"), 
+              file.path(pp, "obesity.bim"), 
+              out.gdsfn = "obesity.gds")
+```
+
+
+```{r load_gds}
+geno <- GdsGenotypeReader("obesity.gds", 
+                        YchromCode=24L, 
+                        XYchromCode=25L)
+```
+
+
+```{r createGenoData}
+genoData <- createGenotypeData(geno, obesity)
+```
+
+```{r mod_chr}
+mod.chr1 <- bayesSNPassoc( ~ group, genoData, chr="1", n.cores=3)
+```
+
+```{r close}
+close(geno)
+```
 
 
 # Analysis of CNV data

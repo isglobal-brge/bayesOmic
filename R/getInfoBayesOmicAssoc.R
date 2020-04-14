@@ -25,18 +25,6 @@ getInfoBayesOmicAssoc<-function(x, N.groups, N.features, names.groups, names.fea
   u.stats<-cbind(tt[[1]][,1],tt[[2]][,c(1,3,5)])
   rownames(u.stats)<-names.features  
 
-# predicted
-  o<-grep("lambda",nn)
-  tt<-x[,o]
-  predicted <- apply(tt[[1]],2,mean)
-
-
-# sigma
-  o<-grep("sigma",nn)
-  tt<-x[,o]
-  sigma<-apply(tt[[1]],2,mean)
-
-
 # specific component
   index<-N.features*N.groups
   aux.ini<-seq(1,index,N.features)
@@ -58,11 +46,17 @@ getInfoBayesOmicAssoc<-function(x, N.groups, N.features, names.groups, names.fea
 
   names(v.median.ind) <- names.groups
 
-  ans<-list(alpha.stats=alpha.stats, beta.stats=beta.stats, 
-            lambda=v.median.ind, u.stats=u.stats, predicted=predicted, 
-            sigma=sigma)
+  
+  # predicted
+  o<-grep("lambda",nn)
+  tt<-x[,o]
+  predicted <- apply(tt[[1]],2,mean)
+  
+  
+ans<-list(alpha.stats=alpha.stats, beta.stats=beta.stats, 
+            lambda=v.median.ind, u.stats=u.stats, predicted=predicted)
 
-  ans
+ans
 
 
 }

@@ -6,14 +6,16 @@
 \alias{print.bayesOmic}
 \title{Bayesian model to analyze CNV data}
 \usage{
-bayesOmicAssoc(group, data, miss.indiv = 0.9, sig.level = 0.05,
-  n.iter.burn.in = 1000, n.iter = 5000, thin = 10, n.chain = 2,
-  ...)
+bayesOmicAssoc(group, data, roi = NA, miss.indiv = 0.9,
+  sig.level = 0.05, n.iter.burn.in = 1000, n.iter = 5000,
+  thin = 10, n.chain = 2, ...)
 }
 \arguments{
-\item{group}{}
+\item{group}{name of grouping variable}
 
-\item{data}{}
+\item{data}{omic data. It can be a data frame, ...}
+
+\item{roi}{Range of interest. A vector containing the chromosome number and the start-end positions}
 
 \item{miss.indiv}{minimum percentage of missing individuals allowed. Default is 0.9}
 

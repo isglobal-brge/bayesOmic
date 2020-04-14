@@ -4,10 +4,12 @@
 \alias{plot.bayesOmic}
 \title{plot.bayesOmicAssoc}
 \usage{
-\method{plot}{bayesOmic}(x, type = "specific", ...)
+plot.bayesOmic(x, type = "specific", show.y.lab = FALSE, ...)
 }
 \arguments{
 \item{x}{object of class 'bayesOmic'}
+
+\item{show.y.lab}{wether to show or not y labs}
 
 \item{mfrow}{}
 

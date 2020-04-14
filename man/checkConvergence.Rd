@@ -4,12 +4,14 @@
 \alias{checkConvergence}
 \title{Check model convergence of coefficients from the Bayesian model}
 \usage{
-checkConvergence(x, type = "Markov chain", parameter = "alpha")
+checkConvergence(x, parameter = "alpha", type = "density")
 }
 \arguments{
 \item{x}{object of class 'bayesOmic'}
 
 \item{parameter}{}
+
+\item{type}{}
 }
 \description{
 Check model convergence of coefficients from the Bayesian model

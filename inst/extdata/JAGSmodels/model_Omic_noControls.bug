@@ -45,18 +45,5 @@ model {
 		sigma.v[j] ~ dnorm(0,0.01)T(0,);
 	}
 	
-
-
-#
-# Some computations
-#
-
-	for(i in 1:N.features) {                          
-             for (j in 1:N.groups) {
-                     p.v[i,j]<-step(v[i,j]);          # probability of being <> 0 
-                     }
-        }
- 
-        
 }
 

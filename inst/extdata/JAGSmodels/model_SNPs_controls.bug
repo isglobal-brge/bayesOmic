@@ -49,13 +49,5 @@ model {
 		sigma.v[j] ~ dnorm(0,0.01)T(0,);
 	}
 
-# Some computations 
-	#Probability of having specific components > 0
-	for(i in 1:Nvar) { 
-		for(j in 1:(Ngroups-1)){
-		pp.v[i,j] <- step(v[i,j])
-		}
-	}
-
 }
 

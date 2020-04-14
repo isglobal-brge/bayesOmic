@@ -3,10 +3,8 @@
 #' @aliases bayesSNPassoc
 #' @aliases plot.bayesOmic
 #' @aliases print.bayesOmic
-#' @param group vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...).
-#' @param data matrix with the genotype of each SNP (columns) corresponding to each individual (rows).
-#' @param sep.allele how alleles are separeted. Argument to be passed through SNPassoc::setupSNP() when SNP data is in a matrix or data.frame. Default is "".
-#' @param annotation 
+#' @param formula
+#' @param data setupSNP data.frame (SNPassoc) with genotypes of each SNP (columns) corresponding to each individual (rows) and phenotypic variables.
 #' @param chr 
 #' @param call.rate 
 #' @param min.freq 
@@ -22,7 +20,8 @@
 #' @export
 
 
-bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rate = 0.9, min.freq=0.05, 
+bayesSNPassoc <- function (formula, data,  chr, 
+                           call.rate = 0.9, min.freq=0.05, 
                            sig.level = 0.05, method="JAGS", 
                            n.iter.burn.in = 1000, n.adapt=100,
                            n.iter = 5000, thin = 5, n.chain = 2,
@@ -34,41 +33,47 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
   if (is.na(type))
     stop("Method should be 'JAGS' or 'INLA'")
   
-  Y <- group
-  if (!is.factor(Y))
-      stop("response must be a factor variable")
-  if (any(is.na(Y)))
-        stop("Dependent variable has missing information")
+  group <- all.vars(formula)
     
   #
   # Get aggregated data
   #
     
-    if (inherits(data, "snp.matrix")) {
-      if (!missing(chr))
-        {
-        if (missing(annotation))
-          stop("snp.matrix data requires annotation information")
-        else
-          genosel <- datChr(chr, data, annotation)
-        }
-        else {
-          genosel <- data
-        }
-
-        alleleAgg <- writeFileGenoDat(genosel, allesum = TRUE, Y)
-        N <- alleleAgg[[3]]
-        O <- alleleAgg[[2]]
+    if (inherits(data, "GenotypeData")) {
+      if (!chr%in%paste(1:24))
+        stop("Chromosome must be a character value 1:24")
+      mask <- getChromosome(data) == chr
+      ss <- which(mask)
+      genosel <- getGenotype(data, snp=c(ss[1], length(ss)),
+                             transpose=TRUE)
+      colnames(genosel) <- getSnpID(data)[mask]
+      
+      Y <- getScanVariable(data, group)
     }
     
     else if (is(data, "matrix") | is(data, "data.frame")){
-      genosel <- SNPassoc::setupSNP(data, 1:ncol(data), sep=sep.allele)
-      genosel <- mutate_all(genosel, SNPassoc::additive)
-     
-      O <- t(aggregate(genosel, by=list(Y), sum, na.rm=TRUE)[,-1])
-      N <- t(aggregate(is.na(genosel) == 0, by = list(Y), sum)[,-1])
+      genosel <- data %>% select(labels(data)) %>%
+                                   mutate_all(SNPassoc::additive)
+      if (!group%in%colnames(data))
+        stop(paste(group, "is not in the data object"))
+      Y <- data[ , which(colnames(data)==group)]
     }
+  else{
+   stop("data must be a 'GenotypeData' (GWATools) or a matrix/data.frame (SNPassoc)")
+  }
+  
+  if (!is.factor(Y))
+    Y <- as.factor(Y)
+
+  nas <- is.na(Y)
+  if (any(nas)) {
+    warning("Dependent variable has missing information. Complete cases are analyzed")
+    genosel <- genosel[!nas, ]
+    Y <- Y[!nas]
+  }
     
+  O <- t(aggregate(genosel, by=list(Y), sum, na.rm=TRUE)[,-1])
+  N <- t(aggregate(is.na(genosel) == 0, by = list(Y), sum)[,-1])
     
     #
     # Performs QC
@@ -107,7 +112,7 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       data.JAGS <- list(Ngroups = Ngroups, Nvar = N.features, O = O, N = N)
       
       sharedModel <- system.file("extdata/JAGSmodels/model_SNPs_controls.bug", package = "bayesOmic")           
-      params <- c("alpha", "beta", "u", "v", "pp.v", "pi")
+      params <- c("alpha", "beta", "u", "v", "pi")
       
       if (n.cores>1){
         cl <- makePSOCKcluster(n.cores)
@@ -215,7 +220,7 @@ bayesSNPassoc <- function (group, data, sep.allele="", annotation, chr, call.rat
       names(res.summary$lambda) <- names.groups[-1]
       res.summary$predicted <- sapply(res$summary.linear.predictor[,5], function(x) exp(x)/(1+exp(x)))
       
-      out <- list(res = res, res.summary=res.summary, model = formula.inla,
+      out <- list(res.summary=res.summary, model = formula.inla,
                   N.groups = Ngroups, N.features = N.features, names.groups = names.groups,
                   names.features = names.features)
       

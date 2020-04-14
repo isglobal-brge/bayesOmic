@@ -4,19 +4,13 @@
 \alias{bayesSNPassoc}
 \title{Bayesian model to analyze SNP data}
 \usage{
-bayesSNPassoc(group, data, sep.allele = "", annotation, chr,
-  call.rate = 0.9, min.freq = 0.05, sig.level = 0.05,
-  n.iter.burn.in = 1000, n.iter = 5000, thin = 10, n.chain = 2,
-  ...)
+bayesSNPassoc(formula, data, chr, call.rate = 0.9, min.freq = 0.05,
+  sig.level = 0.05, method = "JAGS", n.iter.burn.in = 1000,
+  n.adapt = 100, n.iter = 5000, thin = 5, n.chain = 2,
+  n.cores = 1, ...)
 }
 \arguments{
-\item{group}{vector with one value per individual, stores information about group belonging to (Case/Control, PopA/PopB/PopC...)}
-
-\item{data}{matrix with the genotype of each SNP (columns) corresponding to each individual (rows)}
-
-\item{sep.allele}{how alleles are separeted. Argument to be passed through SNPassoc::setupSNP() when SNP data is in a matrix or data.frame. Default is "".}
-
-\item{annotation}{}
+\item{data}{setupSNP data.frame (SNPassoc) with genotypes of each SNP (columns) corresponding to each individual (rows) and phenotypic variables.}
 
 \item{chr}{}
 
@@ -24,7 +18,9 @@ bayesSNPassoc(group, data, sep.allele = "", annotation, chr,
 
 \item{min.freq}{}
 
-\item{sig.level}{significance level}
+\item{sig.level}{significance level.}
+
+\item{method}{estimating method. It can be INLA (default) or JAGS.}
 
 \item{n.iter.burn.in}{}
 
@@ -34,7 +30,7 @@ bayesSNPassoc(group, data, sep.allele = "", annotation, chr,
 
 \item{n.chain}{}
 
-\item{other}{arguments to be passed trough SNPassoc::setupSNP}
+\item{...}{other arguments to be passed trough INLA::inla}
 }
 \description{
 Bayesian model to analyze SNP data
